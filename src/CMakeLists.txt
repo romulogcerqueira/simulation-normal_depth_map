@@ -1,7 +1,7 @@
 rock_library(vizkit3d_normal_depth_map
-    SOURCES Dummy.cpp
-    HEADERS Dummy.hpp)
+    SOURCES NormalDepthMap.cpp
+    HEADERS NormalDepthMap.hpp
+    DEPS_PKGCONFIG openscenegraph)
 
-rock_executable(vizkit3d_normal_depth_map_bin Main.cpp
-    DEPS vizkit3d_normal_depth_map)
+
 
