@@ -17,8 +17,8 @@
 
 namespace vizkit3d_normal_depth_map {
 
-#define SHADER_PATH_FRAG "normal_depth_map/shaders/normalDepthMap.frag"
-#define SHADER_PATH_VERT "normal_depth_map/shaders/normalDepthMap.vert"
+#define SHADER_PATH_FRAG "vizkit3d_normal_depth_map/shaders/normalDepthMap.frag"
+#define SHADER_PATH_VERT "vizkit3d_normal_depth_map/shaders/normalDepthMap.vert"
 
 NormalDepthMap::NormalDepthMap(float maxRange) :
         _maxRange(50.0), _drawDepth(true), _drawNormal(true) {
@@ -44,40 +44,39 @@ osg::ref_ptr<osg::Group> NormalDepthMap::applyShaderNormalDepthMap(osg::ref_ptr<
     ss->setAttribute(program);
 
     //input variables to change shader process
-    osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", this->_maxRange));
+    osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", _maxRange));
     ss->addUniform(farPlaneUniform);
-    osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", this->_drawNormal));
+    osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", _drawNormal));
     ss->addUniform(drawNormalUniform);
-    osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", this->_drawDepth));
+    osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", _drawDepth));
     ss->addUniform(drawDepthUniform);
 
     localRoot->addChild(node);
-
     return localRoot;
 }
 
 void NormalDepthMap::setMaxRange(double maxRange) {
-    this->_maxRange = abs(maxRange);
+    _maxRange = abs(maxRange);
 }
 
 double NormalDepthMap::getMaxRange() {
-    return this->_maxRange;
+    return _maxRange;
 }
 
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
-    this->_drawNormal = drawNormal;
+    _drawNormal = drawNormal;
 }
 
 bool NormalDepthMap::isDrawNormal() {
-    return this->_drawNormal;
+    return _drawNormal;
 }
 
 void NormalDepthMap::setDrawDepth(bool drawDepth) {
-    this->_drawDepth = drawDepth;
+    _drawDepth = drawDepth;
 }
 
 bool NormalDepthMap::isDrawDepth() {
-    return this->_drawDepth;
+    return _drawDepth;
 }
 
 }

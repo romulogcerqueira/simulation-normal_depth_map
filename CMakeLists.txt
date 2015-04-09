@@ -7,4 +7,4 @@ rock_init(vizkit3d_normal_depth_map 0.1)
 rock_standard_layout()
 
 install(DIRECTORY resources/shaders/
-    DESTINATION share/normal_depth_map/shaders)
+    DESTINATION share/vizkit3d_normal_depth_map/shaders)
