@@ -1,0 +1,5 @@
+TO DO LIST
+
+- finish the test to check the normal depth map image.
+- test the map value precision
+- integrate the core and the visualization class

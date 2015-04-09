@@ -1,3 +1,9 @@
-rock_testsuite(testCore NormalDepthMap_test.cpp        
+rock_testsuite(normalDepthMap_core NormalDepthMap_test.cpp
+    DEPS vizkit3d_normal_depth_map        
     LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS vizkit3d_normal_depth_map)
+    DEPS_PKGCONFIG opencv)
+    
+rock_testsuite(imageViewerCaptureTool_core ImageViewerCaptureTool_test.cpp
+    DEPS vizkit3d_normal_depth_map        
+    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+    DEPS_PKGCONFIG opencv)

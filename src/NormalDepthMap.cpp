@@ -21,25 +21,20 @@ namespace vizkit3d_normal_depth_map {
 #define SHADER_PATH_VERT "normal_depth_map/shaders/normalDepthMap.vert"
 
 NormalDepthMap::NormalDepthMap(float maxRange) :
-        maxRange(50.0), drawDepth(true), drawNormal(true) {
+        _maxRange(50.0), _drawDepth(true), _drawNormal(true) {
     this->setMaxRange(maxRange);
 }
 
 NormalDepthMap::NormalDepthMap() :
-        maxRange(50.0), drawDepth(true), drawNormal(true) {
-    // TODO Auto-generated constructor stub
-}
-
-NormalDepthMap::~NormalDepthMap() {
-    // TODO Auto-generated destructor stub
+        _maxRange(50.0), _drawDepth(true), _drawNormal(true) {
 }
 
 osg::ref_ptr<osg::Group> NormalDepthMap::applyShaderNormalDepthMap(osg::ref_ptr<osg::Node> node) {
 
     osg::ref_ptr<osg::Group> localRoot = new osg::Group();
-
     osg::ref_ptr<osg::Program> program(new osg::Program());
 
+    //reads the shaders files
     osg::ref_ptr<osg::Shader> shaderVertex = osg::Shader::readShaderFile(osg::Shader::VERTEX, osgDB::findDataFile(SHADER_PATH_VERT));
     osg::ref_ptr<osg::Shader> shaderFragment = osg::Shader::readShaderFile(osg::Shader::FRAGMENT, osgDB::findDataFile(SHADER_PATH_FRAG));
     program->addShader(shaderFragment);
@@ -48,11 +43,12 @@ osg::ref_ptr<osg::Group> NormalDepthMap::applyShaderNormalDepthMap(osg::ref_ptr<
     osg::ref_ptr<osg::StateSet> ss = localRoot->getOrCreateStateSet();
     ss->setAttribute(program);
 
-    osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", this->maxRange));
+    //input variables to change shader process
+    osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", this->_maxRange));
     ss->addUniform(farPlaneUniform);
-    osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", this->drawNormal));
+    osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", this->_drawNormal));
     ss->addUniform(drawNormalUniform);
-    osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", this->drawDepth));
+    osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", this->_drawDepth));
     ss->addUniform(drawDepthUniform);
 
     localRoot->addChild(node);
@@ -61,27 +57,27 @@ osg::ref_ptr<osg::Group> NormalDepthMap::applyShaderNormalDepthMap(osg::ref_ptr<
 }
 
 void NormalDepthMap::setMaxRange(double maxRange) {
-    this->maxRange = abs(maxRange);
+    this->_maxRange = abs(maxRange);
 }
 
 double NormalDepthMap::getMaxRange() {
-    return this->maxRange;
+    return this->_maxRange;
 }
 
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
-    this->drawNormal = drawNormal;
+    this->_drawNormal = drawNormal;
 }
 
-double NormalDepthMap::isDrawNormal() {
-    return this->drawNormal;
+bool NormalDepthMap::isDrawNormal() {
+    return this->_drawNormal;
 }
 
 void NormalDepthMap::setDrawDepth(bool drawDepth) {
-    this->drawDepth = drawDepth;
+    this->_drawDepth = drawDepth;
 }
 
-double NormalDepthMap::isDrawDepth() {
-    return this->drawDepth;
+bool NormalDepthMap::isDrawDepth() {
+    return this->_drawDepth;
 }
 
 }
