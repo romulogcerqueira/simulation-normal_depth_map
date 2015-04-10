@@ -31,7 +31,7 @@ ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
 
     // initialize the class to get the image in float resolution
     _capture = new WindowCaptureScreen(gc);
-    _viewer->getCamera()->setFinalDrawCallback(this->_capture);
+    _viewer->getCamera()->setFinalDrawCallback(_capture);
 }
 
 osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(osg::ref_ptr<osg::Node> node) {
