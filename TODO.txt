@@ -1,0 +1,5 @@
+TO DO LIST
+
+- integrate the core and the visualization class
+- read the SDF model
+- sync the SDF model with the Gazebo location update

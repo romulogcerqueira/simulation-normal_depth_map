@@ -1,17 +1,19 @@
 <package>
-  <description brief="">
-  
-  </description>
-  <author>Tiago Trocoli/trocolit2@gmail.com</author>
-  <license></license>
-  <url>http://</url>
-  <logo>http://</logo>
-  <depend package="base/cmake" />
-  <!--
-   To add any dependencies use the depend tag
-  <depend package="dummy-dependency-0" />
-	...
-  <depend package="dummy-dependency-n-1" />
-  <depend package="dummy-dependency-n" />
-  -->
+	<description brief="">
+		
+	</description>
+	<author>Tiago Trocoli/trocolit2@gmail.com</author>
+	<license>
+	</license>
+	<url>http://</url>
+	<logo>http://</logo>
+	<depend package="base/cmake" />
+	
+	<!-- rock library dependencies -->
+	<depend package="gui/vizkit3d" />
+	<depend package="base/types" />
+	
+	<!-- os dependencies -->
+	<rosdep name="osg" />
+	
 </package>
