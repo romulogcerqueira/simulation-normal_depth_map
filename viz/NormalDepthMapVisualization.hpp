@@ -6,7 +6,7 @@
 #include <boost/noncopyable.hpp>
 #include <vizkit3d/Vizkit3DPlugin.hpp>
 #include <osg/Geode>
-#include <base/samples/rigid_body_state.h>
+#include <base/samples/RigidBodyState.hpp>
 
 using namespace vizkit3d_normal_depth_map;
 
@@ -25,12 +25,12 @@ public:
     double getMaxRange();
 
     void setDrawNormal(bool drawNormal);
-    double getDrawNormal();
+    bool getDrawNormal();
 
     void setDrawDepth(bool drawDepth);
-    double getDrawDepth();
+    bool getDrawDepth();
 
-    void setRootNode(osg::ref_ptr<osg::Group> rootNode);
+    void addNodeChild(osg::ref_ptr<osg::Node> node);
 
     Q_INVOKABLE
     void updateData(base::samples::RigidBodyState const &sample) {
@@ -43,8 +43,7 @@ protected:
     virtual void updateDataIntern(base::samples::RigidBodyState const& plan);
 
 private:
-    NormalDepthMap normalDepthMap;
-    osg::ref_ptr<osg::Group> rootNode;
+    NormalDepthMap _normalDepthMap;
     struct Data;
     Data* p;
 };
