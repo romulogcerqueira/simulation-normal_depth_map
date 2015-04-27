@@ -9,6 +9,7 @@
 #define GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
 
 #include <osg/Node>
+#include <osg/Group>
 #include <osg/ref_ptr>
 
 namespace vizkit3d_normal_depth_map {
@@ -57,6 +58,10 @@ public:
         return _normalDepthMapNode;
     }
 
+    osg::ref_ptr<osg::Group> createShaderNode() {
+        return dynamic_cast<osg::Group*>(_normalDepthMapNode->clone(osg::CopyOp::DEEP_COPY_ALL));
+    }
+
     void setMaxRange(double maxRange);
     double getMaxRange();
 
@@ -67,10 +72,9 @@ public:
     bool isDrawDepth();
 
 private:
-
     void createTheNormalDepthMapShaderNode();
 
-    osg::ref_ptr<osg::Group> _normalDepthMapNode;
+    osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
     float _maxRange;    // maxRange to estimate the depth
     bool _drawDepth;    // allow to render depth
     bool _drawNormal;   // allow to render normal

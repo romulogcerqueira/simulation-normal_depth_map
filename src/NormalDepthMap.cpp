@@ -10,6 +10,7 @@
 #include <osg/Node>
 #include <osg/Program>
 #include <osg/ref_ptr>
+#include <osg/Group>
 #include <osg/Shader>
 #include <osg/StateSet>
 #include <osg/Uniform>
