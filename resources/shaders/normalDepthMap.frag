@@ -3,6 +3,7 @@
 in vec3 pos;
 in vec3 normal;
 in float linearDepth;
+uniform float farPlane;
 uniform bool drawNormal;
 uniform bool drawDepth;
 

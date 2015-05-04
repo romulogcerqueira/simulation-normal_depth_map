@@ -21,21 +21,17 @@ namespace vizkit3d_normal_depth_map {
 #define SHADER_PATH_FRAG "vizkit3d_normal_depth_map/shaders/normalDepthMap.frag"
 #define SHADER_PATH_VERT "vizkit3d_normal_depth_map/shaders/normalDepthMap.vert"
 
-NormalDepthMap::NormalDepthMap(float maxRange) :
-        _drawDepth(true), _drawNormal(true) {
-    this->setMaxRange(maxRange);
-    createTheNormalDepthMapShaderNode();
+NormalDepthMap::NormalDepthMap(float maxRange) {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange);
 }
 
-NormalDepthMap::NormalDepthMap() :
-        _maxRange(50.0), _drawDepth(true), _drawNormal(true) {
-    createTheNormalDepthMapShaderNode();
+NormalDepthMap::NormalDepthMap() {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(50);
 }
 
 void NormalDepthMap::setMaxRange(double maxRange) {
     _maxRange = abs(maxRange);
-    if (_normalDepthMapNode != NULL)
-        _normalDepthMapNode->getOrCreateStateSet()->getUniform("farPlane")->set(_maxRange);
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("farPlane")->set(_maxRange);
 }
 
 double NormalDepthMap::getMaxRange() {
@@ -44,8 +40,7 @@ double NormalDepthMap::getMaxRange() {
 
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
     _drawNormal = drawNormal;
-    if (_normalDepthMapNode != NULL)
-        _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->set(_drawNormal);
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->set(_drawNormal);
 }
 
 bool NormalDepthMap::isDrawNormal() {
@@ -54,8 +49,7 @@ bool NormalDepthMap::isDrawNormal() {
 
 void NormalDepthMap::setDrawDepth(bool drawDepth) {
     _drawDepth = drawDepth;
-    if (_normalDepthMapNode != NULL)
-        _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawDepth")->set(_drawDepth);
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawDepth")->set(_drawDepth);
 }
 
 void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
@@ -66,9 +60,12 @@ bool NormalDepthMap::isDrawDepth() {
     return _drawDepth;
 }
 
-void NormalDepthMap::createTheNormalDepthMapShaderNode() {
+osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(double maxRange, bool drawDepth, bool drawNormal) {
+    _maxRange = maxRange;
+    _drawDepth = drawDepth;
+    _drawNormal = drawNormal;
 
-    _normalDepthMapNode = new osg::Group();
+    osg::ref_ptr<osg::Group> localRoot = new osg::Group();
     osg::ref_ptr<osg::Program> program(new osg::Program());
 
     //reads the shaders files
@@ -77,7 +74,7 @@ void NormalDepthMap::createTheNormalDepthMapShaderNode() {
     program->addShader(shaderFragment);
     program->addShader(shaderVertex);
 
-    osg::ref_ptr<osg::StateSet> ss = _normalDepthMapNode->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> ss = localRoot->getOrCreateStateSet();
     ss->setAttribute(program);
 
     //input variables to change shader process
@@ -87,6 +84,7 @@ void NormalDepthMap::createTheNormalDepthMapShaderNode() {
     ss->addUniform(drawNormalUniform);
     osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", _drawDepth));
     ss->addUniform(drawDepthUniform);
+    return localRoot;
 }
 
 }

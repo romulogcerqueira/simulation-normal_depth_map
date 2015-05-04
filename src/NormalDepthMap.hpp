@@ -58,10 +58,6 @@ public:
         return _normalDepthMapNode;
     }
 
-    osg::ref_ptr<osg::Group> createShaderNode() {
-        return dynamic_cast<osg::Group*>(_normalDepthMapNode->clone(osg::CopyOp::DEEP_COPY_ALL));
-    }
-
     void setMaxRange(double maxRange);
     double getMaxRange();
 
@@ -72,7 +68,7 @@ public:
     bool isDrawDepth();
 
 private:
-    void createTheNormalDepthMapShaderNode();
+    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(double maxRange, bool depthMap=true, bool normalMap=true);
 
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
     float _maxRange;    // maxRange to estimate the depth

@@ -15,6 +15,18 @@ namespace vizkit3d_normal_depth_map {
 ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
 
     // initialize the hide viewer;
+    initializeProperties(width, height);
+}
+
+ImageViewerCaptureTool::ImageViewerCaptureTool(double fovY, double fovX, uint height) {
+    double aspectRatio = fovX / fovY;
+    uint width = height * aspectRatio;
+    initializeProperties(width, height);
+    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY, aspectRatio, 0.01, 1000);
+}
+
+void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
+    // initialize the hide viewer;
     _viewer = new osgViewer::Viewer;
     osg::Camera *camera = this->_viewer->getCamera();
     osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
@@ -25,11 +37,8 @@ ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
     osg::ref_ptr<osg::GraphicsContext> gc = osg::GraphicsContext::createGraphicsContext(traits.get());
     camera->setGraphicsContext(gc);
     camera->setDrawBuffer(GL_FRONT);
-    // set the image resolution
     camera->setViewport(new osg::Viewport(0, 0, width, height));
-    //    camera->setProjectionMatrixAsPerspective(22, 1, 0.1, 1000);
-
-    // initialize the class to get the image in float resolution
+    // initialize the class to get the image in float data resolution
     _capture = new WindowCaptureScreen(gc);
     _viewer->getCamera()->setFinalDrawCallback(_capture);
 }
@@ -103,4 +112,3 @@ void WindowCaptureScreen::operator ()(osg::RenderInfo& renderInfo) const {
 }
 
 }
-

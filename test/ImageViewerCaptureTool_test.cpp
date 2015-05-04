@@ -93,4 +93,34 @@ BOOST_AUTO_TEST_CASE(ImageViewerCaptureTool_TestCase) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testImageCaptureDefineFoV_TestCase) {
+
+    osg::ref_ptr<osg::Geode> scene = new osg::Geode();
+    osg::ref_ptr<osg::Shape> sphere;
+    uint numberSphere = 20;
+    double multi = 2;
+    for (uint i = 0; i < numberSphere; ++i) {
+        sphere = new osg::Sphere(osg::Vec3(i * multi, 0, -15), 1);
+        scene->addDrawable(new osg::ShapeDrawable(sphere));
+        sphere = new osg::Sphere(osg::Vec3(i * -multi, 0, -15), 1);
+        scene->addDrawable(new osg::ShapeDrawable(sphere));
+        sphere = new osg::Sphere(osg::Vec3(0, i * -multi, -15), 1);
+        scene->addDrawable(new osg::ShapeDrawable(sphere));
+        sphere = new osg::Sphere(osg::Vec3(0, i * multi, -15), 1);
+        scene->addDrawable(new osg::ShapeDrawable(sphere));
+    }
+
+    uint sizeVector = 8;
+    double fovys[] = { 5, 15, 30, 45, 75, 90, 105, 120 };
+    double fovxs[] = { 10, 90, 30, 80, 100, 20, 10, 150 };
+    uint heightSize[] = { 200, 100, 500, 300, 150, 100, 200, 500 };
+    uint gtWidth[] = { 400, 600, 500, 533, 200, 22, 19, 625 };
+
+    for (uint j = 0; j < sizeVector; ++j) {
+        ImageViewerCaptureTool capture(fovys[j], fovxs[j], heightSize[j]);
+        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(scene);
+        BOOST_CHECK_EQUAL(osgImage->s(), gtWidth[j]);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END();
