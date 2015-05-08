@@ -58,8 +58,8 @@ public:
         return _normalDepthMapNode;
     }
 
-    void setMaxRange(double maxRange);
-    double getMaxRange();
+    void setMaxRange(float maxRange);
+    float getMaxRange();
 
     void setDrawNormal(bool drawNormal);
     bool isDrawNormal();
@@ -68,13 +68,8 @@ public:
     bool isDrawDepth();
 
 private:
-    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(double maxRange, bool depthMap=true, bool normalMap=true);
-
+    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(float maxRange = 50.0, bool drawDepth = true, bool drawNormal = true);
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
-    float _maxRange;    // maxRange to estimate the depth
-    bool _drawDepth;    // allow to render depth
-    bool _drawNormal;   // allow to render normal
-
 };
 }
 

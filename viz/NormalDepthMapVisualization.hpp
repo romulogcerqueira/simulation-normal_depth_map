@@ -21,8 +21,8 @@ public:
     NormalDepthMapVisualization();
     ~NormalDepthMapVisualization();
 
-    void setMaxRange(double maxRange);
-    double getMaxRange();
+    void setMaxRange(float maxRange);
+    float getMaxRange();
 
     void setDrawNormal(bool drawNormal);
     bool getDrawNormal();

@@ -38,11 +38,11 @@ void vizkit3d::NormalDepthMapVisualization::addNodeChild(osg::ref_ptr<osg::Node>
     _normalDepthMap.addNodeChild(node);
 }
 
-void vizkit3d::NormalDepthMapVisualization::setMaxRange(double maxRange) {
+void vizkit3d::NormalDepthMapVisualization::setMaxRange(float maxRange) {
     _normalDepthMap.setMaxRange(maxRange);
 }
 
-double vizkit3d::NormalDepthMapVisualization::getMaxRange() {
+float vizkit3d::NormalDepthMapVisualization::getMaxRange() {
     return _normalDepthMap.getMaxRange();
 }
 
