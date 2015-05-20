@@ -12,6 +12,7 @@
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ShapeDrawable>
+#include <osgDB/ReadFile>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -42,6 +43,8 @@ void makeSimpleScene1(osg::ref_ptr<osg::Group> root) {
     osg::Geode *box = new osg::Geode();
     cylinder->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, -30, -10), 10)));
     root->addChild(box);
+
+//    root->addChild(osgDB::readNodeFile("/home/tiagotrocoli/senai/rock/gui/vizkit3d_normal_depth_map/test/cessna.osg"));
 }
 
 void viewPointsFromScene1(std::vector<osg::Vec3d>* eyes, std::vector<osg::Vec3d>* centers, std::vector<osg::Vec3d>* ups) {
@@ -163,20 +166,53 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     viewPointsFromScene1(&eyes, &centers, &ups);
     makeSimpleScene1(root);
-    root = normalDepthMap.applyShaderNormalDepthMap(root);
+    normalDepthMap.addNodeChild(root);
+
     uint precision = 1000;
 
     for (uint i = 0; i < eyes.size(); ++i) {
         capture.setCameraPosition(eyes[i], centers[i], ups[i]);
-        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(root);
+
+        normalDepthMap.setDrawNormal(true);
+        normalDepthMap.setDrawDepth(true);
+        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
         cv::Mat3f cvImage(osgImage->t(), osgImage->s());
         cvImage.data = osgImage->data();
+        cvImage = cvImage.clone();
         cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR, CV_32FC3);
         cv::flip(cvImage, cvImage, 0);
+
+//         get only normal map
+        normalDepthMap.setDrawDepth(false);
+        osg::ref_ptr<osg::Image> osgImageNormalMap = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+        cv::Mat3f cvImageNormalMap(osgImage->t(), osgImage->s());
+        cvImageNormalMap.data = osgImageNormalMap->data();
+        cvImageNormalMap = cvImageNormalMap.clone();
+        cv::cvtColor(cvImageNormalMap, cvImageNormalMap, cv::COLOR_RGB2BGR, CV_32FC3);
+        cv::flip(cvImageNormalMap, cvImageNormalMap, 0);
+
+//        cv::imshow("IMG2", cvImage);
+//        cv::waitKey();
+
+//         get only half range depth map;
+        normalDepthMap.setDrawDepth(true);
+        normalDepthMap.setDrawNormal(false);
+        osg::ref_ptr<osg::Image> osgImageDepthMap = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+        cv::Mat3f cvImageDepthMap(osgImage->t(), osgImage->s());
+        cvImageDepthMap.data = osgImageDepthMap->data();
+        cv::cvtColor(cvImageDepthMap, cvImageDepthMap, cv::COLOR_RGB2BGR, CV_32FC3);
+        cv::flip(cvImageDepthMap, cvImageDepthMap, 0);
+
         for (uint j = 0; j < setPoints[i].size(); ++j) {
             cv::Point p = setPoints[i][j];
+
             cv::Point3i imgValue(cvImage[p.y][p.x][0] * precision, cvImage[p.y][p.x][1] * precision, cvImage[p.y][p.x][2] * precision);
+            cv::Point3i imgValueNormalMap(cvImageNormalMap[p.y][p.x][0] * precision, cvImageNormalMap[p.y][p.x][1] * precision, cvImageNormalMap[p.y][p.x][2] * precision);
+            cv::Point3i imgValueDepthMap(cvImageDepthMap[p.y][p.x][0] * precision, cvImageDepthMap[p.y][p.x][1] * precision, cvImageDepthMap[p.y][p.x][2] * precision);
+
             BOOST_CHECK_EQUAL(imgValue, setValues[i][j]);
+            BOOST_CHECK_EQUAL(imgValueNormalMap, cv::Point3i(setValues[i][j].x, 0, 0));
+            BOOST_CHECK_EQUAL(imgValueDepthMap, cv::Point3i(0, setValues[i][j].y, 0));
         }
     }
 

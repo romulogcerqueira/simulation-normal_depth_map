@@ -9,6 +9,7 @@
 #define GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
 
 #include <osg/Node>
+#include <osg/Group>
 #include <osg/ref_ptr>
 
 namespace vizkit3d_normal_depth_map {
@@ -30,15 +31,7 @@ public:
      *  to get the depth and normal surface information between the
      *  camera and the objects in the scene.
      *
-     *  @param maxRange: It is a float value which limits the depth calculation process. Default maxRange = 50.0
-     */
-    NormalDepthMap();
-    NormalDepthMap(float maxRange);
-
-    /**
-     * @brief Apply the shaders process in scene to build the normal and depth information in render process.
-     *
-     * Ths method apply the shaders to get the normal and depth information, to build the map with this values.
+     *  Ths class apply the shaders to get the normal and depth information, to build the map in osg::Node.
      *  The normal values are in the blue color channel, where:
      *      1 is the max value, and represents the normal vector of the object surface and the normal vector of camera are in the same directions, || ;
      *      0 is the minimum value, the normal vector of the object surface and the normal vector of camera are in the perpendicular directions, |_ ;
@@ -46,18 +39,27 @@ public:
      *      1 is the max value, and represents the object is near from the camera;
      *      0 is the minimum value, and represents the object is far from the camera;
      *
-     *  @param node: It is a node with the models in the target scene
-     *  @return osg::ref_ptr<osg::Group>: A node with the normal_depth_map rendered scene
+     *  @param maxRange: It is a float value which limits the depth calculation process. Default maxRange = 50.0
      */
-    osg::ref_ptr<osg::Group> applyShaderNormalDepthMap(osg::ref_ptr<osg::Node> node);
+    NormalDepthMap();
+    NormalDepthMap(float maxRange);
 
     /**
-     * @brief Set and get the maxRange to render get the objects in scene
+     * @brief Add the models in the normal depth map node
+     *  @param node: osg node to add a main scene
+     */
+    void addNodeChild(osg::ref_ptr<osg::Node> node);
+
+    /**
+     * @brief Get the node with the normal and depth map
      *  @param node: It is a node with the models in the target scene
      */
+    const osg::ref_ptr<osg::Group> getNormalDepthMapNode() const {
+        return _normalDepthMapNode;
+    }
 
-    void setMaxRange(double maxRange);
-    double getMaxRange();
+    void setMaxRange(float maxRange);
+    float getMaxRange();
 
     void setDrawNormal(bool drawNormal);
     bool isDrawNormal();
@@ -66,11 +68,8 @@ public:
     bool isDrawDepth();
 
 private:
-
-    float _maxRange;    // maxRange to estimate the depth
-    bool _drawDepth;    // allow to render depth
-    bool _drawNormal;   // allow to render normal
-
+    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(float maxRange = 50.0, bool drawDepth = true, bool drawNormal = true);
+    osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
 };
 }
 

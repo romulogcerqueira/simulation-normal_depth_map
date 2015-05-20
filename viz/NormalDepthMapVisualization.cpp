@@ -1,6 +1,9 @@
 #include <iostream>
 #include "NormalDepthMapVisualization.hpp"
 
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
+
 using namespace vizkit3d;
 
 struct NormalDepthMapVisualization::Data {
@@ -11,7 +14,7 @@ struct NormalDepthMapVisualization::Data {
 };
 
 NormalDepthMapVisualization::NormalDepthMapVisualization() :
-        p(new Data) {
+        p(new Data), _normalDepthMap() {
 }
 
 NormalDepthMapVisualization::~NormalDepthMapVisualization() {
@@ -19,21 +22,45 @@ NormalDepthMapVisualization::~NormalDepthMapVisualization() {
 }
 
 osg::ref_ptr<osg::Node> NormalDepthMapVisualization::createMainNode() {
-    // Geode is a common node used for vizkit3d plugins. It allows to display
-    // "arbitrary" geometries
-    return new osg::Geode();
+    return _normalDepthMap.getNormalDepthMapNode();
 }
 
 void NormalDepthMapVisualization::updateMainNode(osg::Node* node) {
     osg::Geode* geode = static_cast<osg::Geode*>(node);
-    // Update the main node using the data in p->data
+// Update the main node using the data in p->data
 }
 
 void NormalDepthMapVisualization::updateDataIntern(base::samples::RigidBodyState const& value) {
     p->data = value;
-    std::cout << "got new sample data" << std::endl;
+
+}
+void vizkit3d::NormalDepthMapVisualization::addNodeChild(osg::ref_ptr<osg::Node> node) {
+    _normalDepthMap.addNodeChild(node);
 }
 
+void vizkit3d::NormalDepthMapVisualization::setMaxRange(float maxRange) {
+    _normalDepthMap.setMaxRange(maxRange);
+}
+
+float vizkit3d::NormalDepthMapVisualization::getMaxRange() {
+    return _normalDepthMap.getMaxRange();
+}
+
+void vizkit3d::NormalDepthMapVisualization::setDrawNormal(bool drawNormal) {
+    _normalDepthMap.setDrawNormal(drawNormal);
+}
+
+bool vizkit3d::NormalDepthMapVisualization::getDrawNormal() {
+    return _normalDepthMap.isDrawNormal();
+}
+
+void vizkit3d::NormalDepthMapVisualization::setDrawDepth(bool drawDepth) {
+    _normalDepthMap.setDrawDepth(drawDepth);
+}
+
+bool vizkit3d::NormalDepthMapVisualization::getDrawDepth() {
+    return _normalDepthMap.isDrawDepth();
+}
 //Macro that makes this plugin loadable in ruby, this is optional.
 VizkitQtPlugin(NormalDepthMapVisualization)
 

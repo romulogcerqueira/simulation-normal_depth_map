@@ -59,6 +59,16 @@ public:
     ImageViewerCaptureTool(uint width = 640, uint height = 480);
 
     /**
+     * @brief This constructor class generate a image according fovy, fovx and height resolution.
+     *
+     *  @param fovy: vertical field of view
+     *  @param fovx: horizontal field of view
+     *  @param height: height to generate the image
+     */
+
+    ImageViewerCaptureTool(double fovY, double fovX, uint height);
+
+    /**
      * @brief This function gets the main node scene and generate a image with float values
      *
      *  @param width: Width to generate the image
@@ -71,6 +81,8 @@ public:
     void setBackgroundColor(osg::Vec4d color);
 
 protected:
+
+    void initializeProperties(uint width, uint height);
 
     osg::ref_ptr<WindowCaptureScreen> _capture;
     osg::ref_ptr<osgViewer::Viewer> _viewer;
