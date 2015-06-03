@@ -80,6 +80,9 @@ public:
     void getCameraPosition(osg::Vec3d& eye, osg::Vec3d& center, osg::Vec3d& up);
     void setBackgroundColor(osg::Vec4d color);
 
+    void setViewMatrix (osg::Matrix matrix) { _viewer->getCamera()->setViewMatrix(matrix); };
+    osg::Matrix getViewMatrix(){ return _viewer->getCamera()->getViewMatrix(); };
+
 protected:
 
     void initializeProperties(uint width, uint height);
