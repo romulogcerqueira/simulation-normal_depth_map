@@ -66,7 +66,7 @@ public:
      *  @param height: height to generate the image
      */
 
-    ImageViewerCaptureTool(double fovY, double fovX, uint height);
+    ImageViewerCaptureTool(double fovY, double fovX, uint value, bool isHeight = true);
 
     /**
      * @brief This function gets the main node scene and generate a image with float values
