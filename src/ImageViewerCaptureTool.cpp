@@ -18,11 +18,21 @@ ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
     initializeProperties(width, height);
 }
 
-ImageViewerCaptureTool::ImageViewerCaptureTool(double fovY, double fovX, uint height) {
+ImageViewerCaptureTool::ImageViewerCaptureTool(double fovY, double fovX, uint value, bool isHeight) {
     double aspectRatio = fovX / fovY;
-    uint width = height * aspectRatio;
+    uint width, height;
+
+    if (isHeight) {
+		height = value;
+		width = height * aspectRatio;
+	} else {
+		width = value;
+		height = width / aspectRatio;
+	}
+
     initializeProperties(width, height);
-    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY, aspectRatio, 0.01, 1000);
+    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY, aspectRatio, 0.1, 1000);
 }
 
 void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
