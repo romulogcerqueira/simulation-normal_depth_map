@@ -11,7 +11,8 @@ void main() {
 	vec4 temp_pos = gl_ModelViewMatrix * gl_Vertex;
 	pos = temp_pos.xyz;
 	
-	linearDepth = -pos.z / farPlane ;
+	linearDepth = sqrt(pos.z*pos.z+pos.x*pos.x+pos.y*pos.y);
+	linearDepth = linearDepth / farPlane;
 	 
 	normal = gl_NormalMatrix * gl_Normal;	
 

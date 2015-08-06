@@ -9,7 +9,7 @@ uniform bool drawDepth;
 
 void main() {
 	vec4 tempInfo = vec4(0,0,0,0);
-		
+
 	if(drawNormal)
 		if(linearDepth > 1){	
 			tempInfo = vec4(-1.0,-1.0,-1.0,-1.0);			
