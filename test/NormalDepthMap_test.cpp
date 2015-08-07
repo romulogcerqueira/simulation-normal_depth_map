@@ -113,37 +113,37 @@ void referencePointsFromScene1(std::vector<std::vector<cv::Point> >* setPoints, 
     std::vector<cv::Point3i> values;
 
     // pixel value from each point in image from view1
-    values.push_back(cv::Point3i(878.431, 819.608, 0));
+    values.push_back(cv::Point3i(878.431, 811.608, 0));
     values.push_back(cv::Point3i(0, 0, 0));
-    values.push_back(cv::Point3i(909.804, 368.627, 0));
-    values.push_back(cv::Point3i(254.902, 364.706, 0));
-    values.push_back(cv::Point3i(250.98, 349.02, 0));
+    values.push_back(cv::Point3i(909.804, 356.627, 0));
+    values.push_back(cv::Point3i(254.902, 356.706, 0));
+    values.push_back(cv::Point3i(250.98, 341.02, 0));
     values.push_back(cv::Point3i(0, 0, 0));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view2
     values.push_back(cv::Point3i(0, 0, 0));
-    values.push_back(cv::Point3i(917.647, 262.745, 0));
-    values.push_back(cv::Point3i(925.49, 807.843, 0));
-    values.push_back(cv::Point3i(86.2745, 792.157, 0));
-    values.push_back(cv::Point3i(152.941, 200, 0));
+    values.push_back(cv::Point3i(917.647, 231.745, 0));
+    values.push_back(cv::Point3i(925.49, 803.843, 0));
+    values.push_back(cv::Point3i(86.2745, 788.157, 0));
+    values.push_back(cv::Point3i(152.941, 196, 0));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view3
-    values.push_back(cv::Point3i(74.5098, 525.49, 0));
-    values.push_back(cv::Point3i(823.529, 498.039, 0));
+    values.push_back(cv::Point3i(74.5098, 509.49, 0));
+    values.push_back(cv::Point3i(823.529, 494.039, 0));
     values.push_back(cv::Point3i(0, 0, 0));
-    values.push_back(cv::Point3i(0, 301.961, 0));
-    values.push_back(cv::Point3i(780.392, 533.333, 0));
+    values.push_back(cv::Point3i(0, 270.961, 0));
+    values.push_back(cv::Point3i(780.392, 529.333, 0));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view4
-    values.push_back(cv::Point3i(956.863, 568.628, 0));
-    values.push_back(cv::Point3i(1000, 568.628, 0));
-    values.push_back(cv::Point3i(956.863, 568.628, 0));
+    values.push_back(cv::Point3i(956.863, 545.628, 0));
+    values.push_back(cv::Point3i(1000, 545.628, 0));
+    values.push_back(cv::Point3i(956.863, 545.628, 0));
     values.push_back(cv::Point3i(0, 0, 0));
     values.push_back(cv::Point3i(0, 0, 0));
     setValues->push_back(values);
@@ -191,9 +191,6 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
         cv::cvtColor(cvImageNormalMap, cvImageNormalMap, cv::COLOR_RGB2BGR, CV_32FC3);
         cv::flip(cvImageNormalMap, cvImageNormalMap, 0);
 
-//        cv::imshow("IMG2", cvImage);
-//        cv::waitKey();
-
 //         get only half range depth map;
         normalDepthMap.setDrawDepth(true);
         normalDepthMap.setDrawNormal(false);
@@ -213,9 +210,74 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
             BOOST_CHECK_EQUAL(imgValue, setValues[i][j]);
             BOOST_CHECK_EQUAL(imgValueNormalMap, cv::Point3i(setValues[i][j].x, 0, 0));
             BOOST_CHECK_EQUAL(imgValueDepthMap, cv::Point3i(0, setValues[i][j].y, 0));
+
+//            std::cout << "INDEX" << i << " NORMAL=" << cvImage[p.y][p.x][0] << " DIST=" << cvImage[p.y][p.x][1] << std::endl;
+//            cv::circle(cvImage, p, 2, cv::Scalar(0, 0, 255), -1);
+//            cv::imshow("Test Image", cvImage);
+//            cv::waitKey();
         }
     }
 
+}
+
+void checkDepthValueRadialVariation(cv::Mat3f image, uint id) {
+
+    static const int groudTruth0[] = { 4549, 4666, 4745, 4823, 4901, 4941, 5019, 5058, 5098, 5098, 5098, 5137, 5098, 5098, 5058, 5019, 4980, 4941, 4862, 4784, 4705, 4627 };
+    static const int groudTruth1[] = { 274, 980, 1686, 2352, 2980, 3568, 4078, 4509, 4862, 5058, 5137, 5058, 4823, 4509, 4039, 3529, 2941, 2313, 1647, 941 };
+    static const int groudTruth2[] = { 1921, 2431, 2901, 3333, 3764, 4156, 4470, 4745, 4941, 5058, 5137, 5098, 4941, 4745, 4509, 4156, 3803, 3372, 2941, 2431, 1921 };
+
+    std::vector<std::vector<int> > groundTruthVector(3);
+    groundTruthVector[0] = std::vector<int>(groudTruth0, groudTruth0 + sizeof(groudTruth0) / sizeof(int));
+    groundTruthVector[1] = std::vector<int>(groudTruth1, groudTruth1 + sizeof(groudTruth1) / sizeof(int));
+    groundTruthVector[2] = std::vector<int>(groudTruth2, groudTruth2 + sizeof(groudTruth2) / sizeof(int));
+
+    cv::Point centerPoint(image.size().width / 2, image.size().height / 2);
+    std::vector<int> histSizes;
+    for (int i = 0; i < image.size().width; i = i + image.size().width * 0.05)
+        histSizes.push_back((uint) (image[centerPoint.y][i][1] * 10000));
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(histSizes.begin(), histSizes.end(), groundTruthVector[id].begin(), groundTruthVector[id].end());
+}
+
+BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
+
+    osg::ref_ptr<osg::Geode> scene = new osg::Geode();
+    osg::ref_ptr<osg::Shape> box;
+    uint numberSphere = 100;
+    double multi = 2;
+    double boxSize = 5;
+    double distance = 100;
+    double maxRange = 200;
+    for (uint i = 0; i < numberSphere; ++i) {
+        box = new osg::Box(osg::Vec3(i * multi, 0, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(i * -multi, 0, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(0, i * -multi, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(0, i * multi, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+    }
+    NormalDepthMap normalDepthMap(maxRange);
+    normalDepthMap.setDrawNormal(false);
+    normalDepthMap.addNodeChild(scene);
+
+    uint sizeVector = 3;
+    double fovys[] = { 150, 120, 20 };
+    double fovxs[] = { 20, 120, 150 };
+    uint heightSize[] = { 500, 500, 500 };
+
+    for (uint j = 0; j < sizeVector; ++j) {
+        ImageViewerCaptureTool capture(fovys[j], fovxs[j], heightSize[j]);
+        capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
+        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+        cv::Mat3f cvImage(osgImage->t(), osgImage->s());
+        cvImage.data = osgImage->data();
+        cvImage = cvImage.clone();
+        cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR, CV_32FC3);
+        cv::flip(cvImage, cvImage, 0);
+        checkDepthValueRadialVariation(cvImage, j);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END();
