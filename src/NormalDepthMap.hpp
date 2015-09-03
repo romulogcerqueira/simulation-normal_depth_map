@@ -31,18 +31,23 @@ public:
      *  to get the depth and normal surface information between the
      *  camera and the objects in the scene.
      *
-     *  Ths class apply the shaders to get the normal and depth information, to build the map in osg::Node.
-     *  The normal values are in the blue color channel, where:
+     *  This class apply the shaders to get the normal and depth information, to build the map in osg::Node.
+     *  BLUE CHANNEL, presents the normal values from the objects to the center camera, where:
      *      1 is the max value, and represents the normal vector of the object surface and the normal vector of camera are in the same directions, || ;
      *      0 is the minimum value, the normal vector of the object surface and the normal vector of camera are in the perpendicular directions, |_ ;
-     *  The depth values are in the green color channel, where:
-     *      1 is the max value, and represents the object is near from the camera;
-     *      0 is the minimum value, and represents the object is far from the camera;
+     *  GREEN CHANNEL presents the depth values relative from camera center, where:
+     *      0 is the minimum value, and represents the object is near from the camera;
+     *      1 is the max value, and represents the object is far from the camera, and it is limited by max range;
+     *  RED CHANNEL presents the horizontal angles values relative from camera center, where:
+     *      0 is the minimum value, and represents the object is the object is directly in front of the camera;
+     *      1 is the max value, and represents the object is not on front of the camera, and it is limited by max range;
      *
      *  @param maxRange: It is a float value which limits the depth calculation process. Default maxRange = 50.0
+     *  @param maxHorizontalAngle: It is a float value which limits the angle calculation in horizontal direction process. Default maxHorizontalAngle = PI/4.
+     *  @param maxVerticalAngle: It is a float value which limits the angle calculation in vertical direction process. Default maxHorizontalAngle = PI/4.
      */
     NormalDepthMap();
-    NormalDepthMap(float maxRange);
+    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle);
 
     /**
      * @brief Add the models in the normal depth map node
@@ -61,6 +66,12 @@ public:
     void setMaxRange(float maxRange);
     float getMaxRange();
 
+    void setMaxHorizontalAngle(float maxHorizontalAngle);
+    float getMaxHorizontalAngle();
+
+    void setMaxVerticalAngle(float maxVerticalAngle);
+    float getMaxVerticalAngle();
+
     void setDrawNormal(bool drawNormal);
     bool isDrawNormal();
 
@@ -68,7 +79,8 @@ public:
     bool isDrawDepth();
 
 private:
-    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(float maxRange = 50.0, bool drawDepth = true, bool drawNormal = true);
+    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(float maxRange = 50.0, float maxHorizontalAngle = M_PI * 1.0 / 6.0, float maxVerticalAngle = M_PI * 1.0 / 6.0, bool drawDepth = true,
+            bool drawNormal = true);
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
 };
 }
