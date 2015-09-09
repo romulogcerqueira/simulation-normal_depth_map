@@ -21,8 +21,8 @@ namespace vizkit3d_normal_depth_map {
 #define SHADER_PATH_FRAG "vizkit3d_normal_depth_map/shaders/normalDepthMap.frag"
 #define SHADER_PATH_VERT "vizkit3d_normal_depth_map/shaders/normalDepthMap.vert"
 
-NormalDepthMap::NormalDepthMap(float maxRange) {
-    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange);
+NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle) {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle);
 }
 
 NormalDepthMap::NormalDepthMap() {
@@ -37,6 +37,26 @@ float NormalDepthMap::getMaxRange() {
     float maxRange = 0;
     _normalDepthMapNode->getOrCreateStateSet()->getUniform("farPlane")->get(maxRange);
     return maxRange;
+}
+
+void NormalDepthMap::setMaxHorizontalAngle(float maxHorizontalAngle) {
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitHorizontalAngle")->set(maxHorizontalAngle);
+}
+
+float NormalDepthMap::getMaxHorizontalAngle() {
+    float maxHorizontalAngle = 0;
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitHorizontalAngle")->get(maxHorizontalAngle);
+    return maxHorizontalAngle;
+}
+
+void NormalDepthMap::setMaxVerticalAngle(float maxVerticalAngle) {
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitVerticalAngle")->set(maxVerticalAngle);
+}
+
+float NormalDepthMap::getMaxVerticalAngle() {
+    float maxVerticalAngle = 0;
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitVerticalAngle")->get(maxVerticalAngle);
+    return maxVerticalAngle;
 }
 
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
@@ -63,7 +83,7 @@ void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     _normalDepthMapNode->addChild(node);
 }
 
-osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float maxRange, bool drawDepth, bool drawNormal) {
+osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, bool drawDepth, bool drawNormal) {
     osg::ref_ptr<osg::Group> localRoot = new osg::Group();
     osg::ref_ptr<osg::Program> program(new osg::Program());
 
@@ -77,6 +97,13 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float
 
     osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", maxRange));
     ss->addUniform(farPlaneUniform);
+
+    osg::ref_ptr<osg::Uniform> maxHorizontalAngleUniform(new osg::Uniform("limitHorizontalAngle", maxHorizontalAngle));
+    ss->addUniform(maxHorizontalAngleUniform);
+
+    osg::ref_ptr<osg::Uniform> maxVerticalAngleUniform(new osg::Uniform("limitVerticalAngle", maxVerticalAngle));
+    ss->addUniform(maxVerticalAngleUniform);
+
     osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", drawNormal));
     ss->addUniform(drawNormalUniform);
     osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", drawDepth));
@@ -86,3 +113,4 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float
 }
 
 }
+
