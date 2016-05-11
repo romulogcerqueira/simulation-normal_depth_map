@@ -19,16 +19,19 @@ ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
 }
 
 ImageViewerCaptureTool::ImageViewerCaptureTool(double fovY, double fovX, uint value, bool isHeight) {
-    double aspectRatio = fovX / fovY;
     uint width, height;
+    double fovYrad = fovY * M_PI / 180.0;
+    double fovXrad = fovX * M_PI / 180.0;
 
     if (isHeight) {
-		height = value;
-		width = height * aspectRatio;
-	} else {
-		width = value;
-		height = width / aspectRatio;
-	}
+        height = value;
+        width = height * tan(fovXrad * 0.5) / tan(fovYrad * 0.5);
+    } else {
+        width = value;
+        height = width * tan(fovYrad * 0.5) / tan(fovXrad * 0.5);
+    }
+
+    double aspectRatio = width * 1.0 / height;
 
     initializeProperties(width, height);
     _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
