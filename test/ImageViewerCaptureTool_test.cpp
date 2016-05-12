@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(testImageCaptureDefineFoV_TestCase) {
     uint gtWidth[] = { 400, 600, 500, 533, 200, 22, 19, 625 };
 
     for (uint j = 0; j < sizeVector; ++j) {
-        ImageViewerCaptureTool capture(fovys[j], fovxs[j], heightSize[j]);
+        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0, fovxs[j] * M_PI / 180.0, heightSize[j]);
         osg::ref_ptr<osg::Image> osgImage = capture.grabImage(scene);
         BOOST_CHECK_EQUAL(osgImage->s(), gtWidth[j]);
     }

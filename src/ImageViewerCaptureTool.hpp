@@ -61,8 +61,8 @@ public:
     /**
      * @brief This constructor class generate a image according fovy, fovx and height resolution.
      *
-     *  @param fovy: vertical field of view
-     *  @param fovx: horizontal field of view
+     *  @param fovy: vertical field of view (in radians)
+     *  @param fovx: horizontal field of view (in radians)
      *  @param height: height to generate the image
      */
 
