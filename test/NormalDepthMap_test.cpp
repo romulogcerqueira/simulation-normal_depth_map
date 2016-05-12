@@ -198,13 +198,11 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
     referencePointsFromScene1(&setPoints, &setValues);
 
     float maxRange = 50;
-    float maxAngleX = 30;
-    float maxAngleY = 30;
-    float maxAngleXRad = maxAngleX * (M_PI / 180.0) * 0.5;
-    float maxAngleYRad = maxAngleY * (M_PI / 180.0) * 0.5;
+    float maxAngleX = M_PI * 1.0 / 6; // 30 degrees
+    float maxAngleY = M_PI * 1.0 / 6; // 30 degrees
 
     uint height = 500;
-    NormalDepthMap normalDepthMap(maxRange, maxAngleXRad, maxAngleYRad);
+    NormalDepthMap normalDepthMap(maxRange, maxAngleX * 0.5, maxAngleY * 0.5);
     ImageViewerCaptureTool capture(maxAngleY, maxAngleX, height);
     capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
 
@@ -245,7 +243,7 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
         cv::cvtColor(cvImageDepthMap, cvImageDepthMap, cv::COLOR_RGB2BGR, CV_32FC3);
         cv::flip(cvImageDepthMap, cvImageDepthMap, 0);
 
-        plotSonarTest(cvImage, maxRange, maxAngleXRad);
+        plotSonarTest(cvImage, maxRange, maxAngleX);
 
         for (uint j = 0; j < setPoints[i].size(); ++j) {
             cv::Point p = setPoints[i][j];
@@ -309,7 +307,7 @@ BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
         box = new osg::Box(osg::Vec3(0, i * multi, -distance), boxSize);
         scene->addDrawable(new osg::ShapeDrawable(box));
     }
-    NormalDepthMap normalDepthMap(maxRange, 30, 30);
+    NormalDepthMap normalDepthMap(maxRange, M_PI / 6, M_PI / 6);
     normalDepthMap.setDrawNormal(false);
     normalDepthMap.addNodeChild(scene);
 
@@ -319,7 +317,7 @@ BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
     uint heightSize[] = { 500, 500, 500 };
 
     for (uint j = 0; j < sizeVector; ++j) {
-        ImageViewerCaptureTool capture(fovys[j], fovxs[j], heightSize[j]);
+        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0, fovxs[j] * M_PI / 180.0, heightSize[j]);
         capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
         osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
         cv::Mat3f cvImage(osgImage->t(), osgImage->s());
