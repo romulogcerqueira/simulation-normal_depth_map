@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testImageCaptureDefineFoV_TestCase) {
     double fovys[] = { 5, 15, 30, 45, 75, 90, 105, 120 };
     double fovxs[] = { 10, 90, 30, 80, 100, 20, 10, 150 };
     uint heightSize[] = { 200, 100, 500, 300, 150, 100, 200, 500 };
-    uint gtWidth[] = { 400, 600, 500, 533, 200, 22, 19, 625 };
+    uint gtWidth[] = { 400, 759, 500, 607, 232, 17, 13, 1077 };
 
     for (uint j = 0; j < sizeVector; ++j) {
         ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0, fovxs[j] * M_PI / 180.0, heightSize[j]);
