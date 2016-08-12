@@ -26,13 +26,13 @@ using namespace vizkit3d_normal_depth_map;
 
 BOOST_AUTO_TEST_SUITE(vizkit3d_NormalDepthMap)
 
-void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
+void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX, cv::Mat1f cv_depth) {
 
   cv::Mat3b imagePlotMap = cv::Mat3b::zeros(1000, 1000);
   cv::Mat1b imagePlot = cv::Mat1b::zeros(1000, 1000);
   cv::Point2f centerImage(image.cols / 2, image.rows / 2);
   cv::Point2f centerPlot(imagePlot.cols / 2, 0);
-  double factor = 1000 / maxRange;
+  double factor = 1000/maxRange;
   double pointSize = factor / 3;
   cv::Point2f halfSize(pointSize / 2, pointSize / 2);
 
@@ -41,7 +41,8 @@ void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
 
   for (int j = 0; j < image.rows; ++j)
     for (int i = 0; i < image.cols; ++i) {
-      double distance = image[j][i][1] * maxRange;
+      // double distance = image[j][i][1] * maxRange;
+      double distance = cv_depth[j][i] * maxRange;
       double alpha = slope * i + constant;
 
       cv::Point2f tempPoint(distance * sin(alpha), distance * cos(alpha));
@@ -125,7 +126,8 @@ void viewPointsFromScene1(std::vector<osg::Vec3d> *eyes,
 // reference points, and map values for each view in viewPointsFromScene1
 void referencePointsFromScene1(
         std::vector<std::vector<cv::Point> > *setPoints,
-        std::vector<std::vector<cv::Point3i> > *setValues) {
+        std::vector<std::vector<cv::Point3i> > *setValues,
+        std::vector<std::vector<int> > *gt_depth_buffer) {
 
   std::vector<cv::Point> points;
   // image points in view1
@@ -202,6 +204,45 @@ void referencePointsFromScene1(
   values.push_back(cv::Point3i(952, 454, 0));
   setValues->push_back(values);
   values.clear();
+
+
+  std::vector<int> temp_depth;
+  // pixel value from each point in depth buffer from view1
+  temp_depth.push_back(185);
+  temp_depth.push_back(198);
+  temp_depth.push_back(637);
+  temp_depth.push_back(604);
+  temp_depth.push_back(616);
+  temp_depth.push_back(981);
+  gt_depth_buffer->push_back(temp_depth);
+  temp_depth.clear();
+
+  // pixel value from each point in depth buffer from view2
+  temp_depth.push_back(0);
+  temp_depth.push_back(769);
+  temp_depth.push_back(194);
+  temp_depth.push_back(204);
+  temp_depth.push_back(818);
+  gt_depth_buffer->push_back(temp_depth);
+  temp_depth.clear();
+
+  // pixel value from each point in depth buffer from view3
+  temp_depth.push_back(463);
+  temp_depth.push_back(504);
+  temp_depth.push_back(662);
+  temp_depth.push_back(683);
+  temp_depth.push_back(475);
+  gt_depth_buffer->push_back(temp_depth);
+  temp_depth.clear();
+
+  // pixel value from each point in depth buffer from view4
+  temp_depth.push_back(447);
+  temp_depth.push_back(431);
+  temp_depth.push_back(448);
+  temp_depth.push_back(0);
+  temp_depth.push_back(453);
+  gt_depth_buffer->push_back(temp_depth);
+  temp_depth.clear();
 }
 
 BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
@@ -209,7 +250,8 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
 std::vector<osg::Vec3d> eyes, centers, ups;
 std::vector<std::vector<cv::Point> > setPoints;
 std::vector<std::vector<cv::Point3i> > setValues;
-referencePointsFromScene1(&setPoints, &setValues);
+std::vector<std::vector<int> > gt_depth_buffer;
+referencePointsFromScene1(&setPoints, &setValues, &gt_depth_buffer);
 
 float maxRange = 50;
 float maxAngleX = M_PI * 1.0 / 6; // 30 degrees
@@ -261,7 +303,18 @@ uint precision = 1000;
     cv::cvtColor(cvImageDepthMap, cvImageDepthMap, cv::COLOR_RGB2BGR, CV_32FC3);
     cv::flip(cvImageDepthMap, cvImageDepthMap, 0);
 
-    plotSonarTest(cvImage, maxRange, maxAngleX * 0.5);
+    // get linear depth with high resolution
+    osg::ref_ptr<osg::Image> osg_depth =  capture.getDepthBuffer();
+    cv::Mat1f cv_depth(osg_depth->t(), osg_depth->s());
+    cv_depth.data = osg_depth->data();
+    cv_depth = cv_depth.clone();
+    cv::flip(cv_depth, cv_depth, 0);
+    cv_depth = cv_depth.mul( cv::Mat1f(cv_depth < 1)/255);
+    cv::imshow("DEPTH BUFFER", cv_depth);
+
+
+    //start check process
+    plotSonarTest(cvImage, maxRange, maxAngleX * 0.5, cv_depth);
 
     for (uint j = 0; j < setPoints[i].size(); ++j) {
       cv::Point p = setPoints[i][j];
@@ -278,11 +331,14 @@ uint precision = 1000;
                                    cvImageDepthMap[p.y][p.x][1] * precision,
                                    cvImageDepthMap[p.y][p.x][2] * precision);
 
+
       BOOST_CHECK_EQUAL(imgValue, setValues[i][j]);
       BOOST_CHECK_EQUAL(imgValueNormalMap,
                         cv::Point3i(setValues[i][j].x, 0, 0));
       BOOST_CHECK_EQUAL(imgValueDepthMap,
                         cv::Point3i(0, setValues[i][j].y, setValues[i][j].z));
+      BOOST_CHECK_EQUAL( (int) (cv_depth[p.y][p.x] * precision),
+                         gt_depth_buffer[i][j]);
 
     }
   }
