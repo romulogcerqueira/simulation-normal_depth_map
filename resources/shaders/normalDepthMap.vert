@@ -9,9 +9,9 @@ uniform bool drawNormal;
 uniform bool drawDepth;
 
 void main() {
-    vec4 temp_pos = gl_ModelViewMatrix * gl_Vertex;
-    pos = temp_pos.xyz;
+  vec4 temp_pos = gl_ModelViewMatrix * gl_Vertex;
+  pos = temp_pos.xyz;
 
-    normal = gl_NormalMatrix * gl_Normal;
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  normal = gl_NormalMatrix * gl_Normal;
+  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
