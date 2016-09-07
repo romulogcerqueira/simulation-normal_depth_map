@@ -8,6 +8,8 @@ uniform float limitVerticalAngle;
 uniform bool drawNormal;
 uniform bool drawDepth;
 
+out vec4 out_data;
+
 void main() {
     vec4 tempInfo = vec4(0, 0, 0, 0);
     vec3 normPosition = normalize(-pos);
@@ -23,6 +25,6 @@ void main() {
             tempInfo.yw = vec2(linearDepth, 1.0);
     }
 
-    gl_FragData[0] = tempInfo;
+    out_data = tempInfo;
+    gl_FragDepth = linearDepth;
 }
-

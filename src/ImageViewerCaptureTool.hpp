@@ -32,6 +32,7 @@ public:
      *  @return osg::Image: it is return a image from the scene with defined camera and view parameters.
      */
     osg::ref_ptr<osg::Image> captureImage();
+    osg::ref_ptr<osg::Image> getDepthBuffer();
 
 private:
 
@@ -45,13 +46,15 @@ private:
     OpenThreads::Mutex *_mutex;
     OpenThreads::Condition *_condition;
     osg::ref_ptr<osg::Image> _image;
+    osg::ref_ptr<osg::Image> _depth_buffer;
 };
 
 class ImageViewerCaptureTool {
 public:
 
     /**
-     * @brief This class generate a hide viewer to get the osg::image without GUI.
+     * @brief This class generate a hide viewer to get the osg::image without
+     *  GUI.
      *
      *  @param width: Width to generate the image
      *  @param height: height to generate the image
@@ -59,29 +62,43 @@ public:
     ImageViewerCaptureTool(uint width = 640, uint height = 480);
 
     /**
-     * @brief This constructor class generate a image according fovy, fovx and height resolution.
+     * @brief This constructor class generate a image according fovy, fovx and
+     *  height resolution.
      *
      *  @param fovy: vertical field of view (in radians)
      *  @param fovx: horizontal field of view (in radians)
      *  @param height: height to generate the image
      */
 
-    ImageViewerCaptureTool(double fovY, double fovX, uint value, bool isHeight = true);
+    ImageViewerCaptureTool( double fovY, double fovX, uint value,
+                            bool isHeight = true);
 
     /**
-     * @brief This function gets the main node scene and generate a image with float values
+     * @brief This function gets the main node scene and generate a image with
+     * float values
      *
-     *  @param width: Width to generate the image
-     *  @param height: height to generate the image
+     *  @param node: node with the main scene
      */
+
     osg::ref_ptr<osg::Image> grabImage(osg::ref_ptr<osg::Node> node);
 
-    void setCameraPosition(const osg::Vec3d& eye, const osg::Vec3d& center, const osg::Vec3d& up);
+    /**
+     * @brief This function gets the image create by depth buffer
+     *
+     */
+
+    osg::ref_ptr<osg::Image> getDepthBuffer();
+
+    void setCameraPosition( const osg::Vec3d& eye, const osg::Vec3d& center,
+                            const osg::Vec3d& up);
     void getCameraPosition(osg::Vec3d& eye, osg::Vec3d& center, osg::Vec3d& up);
     void setBackgroundColor(osg::Vec4d color);
 
-    void setViewMatrix (osg::Matrix matrix) { _viewer->getCamera()->setViewMatrix(matrix); };
-    osg::Matrix getViewMatrix(){ return _viewer->getCamera()->getViewMatrix(); };
+    void setViewMatrix (osg::Matrix matrix)
+      { _viewer->getCamera()->setViewMatrix(matrix); };
+
+    osg::Matrix getViewMatrix()
+      { return _viewer->getCamera()->getViewMatrix(); };
 
 protected:
 
