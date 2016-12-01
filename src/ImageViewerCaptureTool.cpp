@@ -49,6 +49,7 @@ void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
     traits->width = width;
     traits->height = height;
     traits->pbuffer = true;
+    traits->doubleBuffer = true;
     traits->readDISPLAY();
     osg::ref_ptr<osg::GraphicsContext> gc =
       osg::GraphicsContext::createGraphicsContext(traits.get());
