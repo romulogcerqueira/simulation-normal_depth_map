@@ -43,8 +43,6 @@ private:
      */
     void operator ()(osg::RenderInfo& renderInfo) const;
 
-    OpenThreads::Mutex *_mutex;
-    OpenThreads::Condition *_condition;
     osg::ref_ptr<osg::Image> _image;
     osg::ref_ptr<osg::Image> _depth_buffer;
 };

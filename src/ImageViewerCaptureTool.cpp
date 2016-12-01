@@ -33,6 +33,7 @@ ImageViewerCaptureTool::ImageViewerCaptureTool( double fovY, double fovX,
     double aspectRatio = width * 1.0 / height;
 
     initializeProperties(width, height);
+    _viewer->setThreadingModel(osgViewer::Viewer::SingleThreaded);
     _viewer->getCamera()->setComputeNearFarMode(
       osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 
@@ -66,7 +67,7 @@ osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(
 
     _viewer->setSceneData(node);
     _viewer->frame();
-    return _capture->captureImage();;
+    return _capture->captureImage();
 }
 
 osg::ref_ptr<osg::Image> ImageViewerCaptureTool::getDepthBuffer() {
@@ -99,8 +100,6 @@ void ImageViewerCaptureTool::setBackgroundColor(osg::Vec4d color) {
 
 WindowCaptureScreen::WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gc) {
 
-    _mutex = new OpenThreads::Mutex();
-    _condition = new OpenThreads::Condition();
     _image = new osg::Image();
     _depth_buffer = new osg::Image();
 
@@ -123,14 +122,10 @@ WindowCaptureScreen::WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gc) 
 }
 
 WindowCaptureScreen::~WindowCaptureScreen() {
-    delete (_condition);
-    delete (_mutex);
 }
 
 osg::ref_ptr<osg::Image> WindowCaptureScreen::captureImage() {
 
-    //wait to finish the capture image in call back
-    _condition->wait(_mutex);
     return _image;
 }
 
@@ -144,15 +139,10 @@ void WindowCaptureScreen::operator ()(osg::RenderInfo& renderInfo) const {
     osg::ref_ptr<osg::GraphicsContext> gc =
       renderInfo.getState()->getGraphicsContext();
     if (gc->getTraits()) {
-        _mutex->lock();
         _image->readPixels( 0, 0, _image->s(), _image->t(),
                             _image->getPixelFormat(), GL_FLOAT);
         _depth_buffer->readPixels(0, 0, _image->s(), _image->t(),
                                   _depth_buffer->getPixelFormat(), GL_FLOAT);
-
-      //grants the access to image
-        _condition->signal();
-        _mutex->unlock();
     }
 }
 
