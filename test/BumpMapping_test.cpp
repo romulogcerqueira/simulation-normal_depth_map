@@ -20,6 +20,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/contrib/contrib.hpp>
 
 // C++ includes
 #include <iostream>
@@ -41,7 +42,7 @@ bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
 // add a simple sphere to scene
 void addSimpleObject(osg::ref_ptr<osg::Group> root) {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,-3),1)));
+    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,-7.5), 3)));
     root->addChild(geode);
     root->getChild(0)->asGeode()->addDrawable(geode->getDrawable(0));
 }
@@ -125,11 +126,8 @@ osg::ref_ptr<osg::Group> createBumpMapScene() {
 }
 
 // compute the normal map for a osg scene
-cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root) {
-    float maxRange = 50.0f;
+cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, float fovX, float fovY) {
     uint height = 500;
-    float fovX = M_PI / 3;  // 60 degrees
-    float fovY = M_PI / 3;  // 60 degrees
 
     // normal depth map
     NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5);
@@ -139,17 +137,65 @@ cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root) {
 
     // grab scene
     osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+    osg::ref_ptr<osg::Image> osgDepth = capture.getDepthBuffer();
     cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
+    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(), CV_32FC1, osgDepth->data());
+    cvDepth = cvDepth.mul( cv::Mat1f(cvDepth < 1) / 255);
+
+    std::vector<cv::Mat> channels;
+    cv::split(cvImage, channels);
+    channels[1] = cvDepth;
+    cv::merge(channels, cvImage);
+
     cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
+    cv::flip(cvImage, cvImage, 0);
+
     return cvImage.clone();
 }
 
+void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
+
+    cv::Mat1b imagePlot = cv::Mat1b::zeros(500, 500);
+    cv::Point2f centerPlot(imagePlot.cols / 2, 0);
+    double factor = 500 / maxRange;
+    double slope = 2 * maxAngleX * (1.0 / (image.cols - 1));
+
+    for (int j = 0; j < image.rows; ++j) {
+        for (int i = 0; i < image.cols; ++i) {
+            double distance = image[j][i][1] * maxRange;
+            double alpha = slope * i - maxAngleX;
+
+            cv::Point2f tempPoint(distance * sin(alpha), distance * cos(alpha));
+            tempPoint = tempPoint * factor + centerPlot;
+            imagePlot[(uint) tempPoint.y][(uint) tempPoint.x] = 255 * image[j][i][0];
+        }
+    }
+
+    cv::Mat3b imagePlotMap;
+    cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
+
+    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
+              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+
+    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
+              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+
+    cv::imshow("Sonar Plot Test", imagePlotMap);
+    cv::imshow("Normal Depth Map", image);
+    cv::waitKey();
+}
+
+
 BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
+    float maxRange = 10.0f;
+    float fovX = M_PI / 3;  // 60 degrees
+    float fovY = M_PI / 3;  // 60 degrees
+
     osg::ref_ptr<osg::Group> simpleRoot = createSimpleScene();
     osg::ref_ptr<osg::Group> bumpRoot = createBumpMapScene();
 
-    cv::Mat cvSimple = computeNormalDepthMap(simpleRoot);
-    cv::Mat cvBump = computeNormalDepthMap(bumpRoot);
+    cv::Mat cvSimple = computeNormalDepthMap(simpleRoot, maxRange, fovX, fovY);
+    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
 
     std::vector<cv::Mat> simpleChannels, bumpChannels;
     cv::split(cvSimple, simpleChannels);
@@ -161,10 +207,9 @@ BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     // assert that the depth matrixes are equals
     BOOST_CHECK(are_equals(simpleChannels[1], bumpChannels[1]) == true);
 
-    cv::Mat cvOut;
-    cv::hconcat(cvSimple, cvBump, cvOut);
-    cv::imshow("Bump Mapping test", cvOut);
-    cv::waitKey();
+    // plot sonar sample output
+    plotSonarTest(cvSimple, maxRange, fovX * 0.5);
+    plotSonarTest(cvBump, maxRange, fovX * 0.5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()//
