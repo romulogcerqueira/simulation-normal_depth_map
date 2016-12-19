@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE "BumpMapping_test"
 #include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
 
 // OpenSceneGraph includes
 #include <osg/Geode>
@@ -25,11 +24,18 @@
 // C++ includes
 #include <iostream>
 
-const int TEXTURE_UNIT_DIFFUSE = 0;
-const int TEXTURE_UNIT_NORMAL = 1;
-const int TEXTURE_UNIT_SPECULAR = 2;
-
 using namespace vizkit3d_normal_depth_map;
+
+enum TextureUnitTypes {
+    TEXTURE_UNIT_DIFFUSE,
+    TEXTURE_UNIT_NORMAL
+};
+
+enum TextureImages {
+    TEXTURE_CONCRETE,
+    TEXTURE_GRAY,
+    TEXTURE_ROCKS
+};
 
 BOOST_AUTO_TEST_SUITE(BumpMapping)
 
@@ -39,19 +45,31 @@ bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
     return (cv::countNonZero(diff) == 0);
 }
 
-// add a simple sphere to scene
+// add one object to scene (sphere)
 void addSimpleObject(osg::ref_ptr<osg::Group> root) {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,-7.5), 3)));
+    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,-14), 5)));
     root->addChild(geode);
     root->getChild(0)->asGeode()->addDrawable(geode->getDrawable(0));
 }
 
+// add two objects to scene (sphere and box)
+void addMultiObject(osg::ref_ptr<osg::Group> root) {
+    osg::ref_ptr<osg::Geode> sphere = new osg::Geode();
+    sphere->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(-2, -2, -10), 1.25)));
+    root->addChild(sphere);
+    root->getChild(0)->asGeode()->addDrawable(sphere->getDrawable(0));
+
+    osg::ref_ptr<osg::Geode> box = new osg::Geode();
+    box->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(2, 2, -20), 7.5)));
+    root->addChild(box);
+    root->getChild(1)->asGeode()->addDrawable(box->getDrawable(0));
+}
+
 // define texture attributes
-osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::ref_ptr<osg::Image> diffuseImage, osg::ref_ptr<osg::Image> normalImage, osg::ref_ptr<osg::Image> specularImage) {
+osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::ref_ptr<osg::Image> diffuseImage, osg::ref_ptr<osg::Image> normalImage) {
     osg::ref_ptr<osg::Texture2D> diffuse = new osg::Texture2D();
     osg::ref_ptr<osg::Texture2D> normal = new osg::Texture2D();
-    osg::ref_ptr<osg::Texture2D> specular = new osg::Texture2D();
 
     diffuse->setImage(diffuseImage);
     diffuse->setDataVariance(osg::Object::DYNAMIC);
@@ -71,35 +89,40 @@ osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::ref_ptr<osg::Image> diffus
     normal->setResizeNonPowerOfTwoHint(false);
     normal->setMaxAnisotropy(8.0f);
 
-    specular->setImage(specularImage);
-    specular->setDataVariance(osg::Object::DYNAMIC);
-    specular->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-    specular->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-    specular->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-    specular->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-    specular->setResizeNonPowerOfTwoHint(false);
-    specular->setMaxAnisotropy(8.0f);
-
-    osg::StateSet* bumpState = new osg::StateSet();
+    osg::ref_ptr<osg::StateSet> bumpState = new osg::StateSet();
     bumpState->setTextureAttributeAndModes(TEXTURE_UNIT_DIFFUSE, diffuse, osg::StateAttribute::ON);
     bumpState->setTextureAttributeAndModes(TEXTURE_UNIT_NORMAL, normal, osg::StateAttribute::ON);
-    bumpState->setTextureAttributeAndModes(TEXTURE_UNIT_SPECULAR, specular, osg::StateAttribute::ON);
     return bumpState;
 }
 
-void loadTextures(osg::ref_ptr<osg::Group> root) {
+// get texture files
+void loadTextures(osg::ref_ptr<osg::Group> root, TextureImages textureId) {
     std::string current_path(__FILE__);
     current_path = current_path.substr(0, current_path.find_last_of("/"));
 
     // load texture files
-    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/red_texture_d.jpg");
-    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/red_texture_n.jpg");
-    osg::ref_ptr<osg::Image> specularImage = osgDB::readImageFile(current_path + "/textures/red_texture_s.jpg");
-    BOOST_CHECK( (!diffuseImage || !normalImage || !specularImage) == false );
+    std::string texture_type;
+    switch(textureId) {
+        case TEXTURE_CONCRETE:
+            texture_type = "concrete_texture";
+            break;
+        case TEXTURE_GRAY:
+            texture_type = "gray_texture";
+            break;
+        case TEXTURE_ROCKS:
+            texture_type = "rocks_texture";
+            break;
+        default:
+            throw std::invalid_argument("Texture image parameter does not match a known enum value");
+    }
+
+    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_d.jpg");
+    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_n.jpg");
+    BOOST_CHECK( (!diffuseImage || !normalImage) == false );
 
     // texture properties
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->setStateSet(insertBumpMapTexture(diffuseImage, normalImage, specularImage));
+    geode->setStateSet(insertBumpMapTexture(diffuseImage, normalImage));
     root->addChild(geode);
 }
 
@@ -110,22 +133,36 @@ osg::ref_ptr<osg::Group> createSimpleScene() {
     return root;
 }
 
-// create scene with bump mapping
-osg::ref_ptr<osg::Group> createBumpMapScene() {
+// create scene with bump mapping and one object
+osg::ref_ptr<osg::Group> createBumpMapSimpleScene() {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
     stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
     stateset->addUniform(new osg::Uniform("normalTexture", TEXTURE_UNIT_NORMAL));
-    stateset->addUniform(new osg::Uniform("specularTexture", TEXTURE_UNIT_SPECULAR));
     stateset->setDataVariance(osg::Object::STATIC);
     root->setStateSet(stateset);
 
-    loadTextures(root);
+    loadTextures(root, TEXTURE_GRAY);
     addSimpleObject(root);
     return root;
 }
 
-// compute the normal map for a osg scene
+// create scene with bump mapping and multiple objects
+osg::ref_ptr<osg::Group> createBumpMapMultiScene() {
+    osg::ref_ptr<osg::Group> root = new osg::Group();
+    osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
+    stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
+    stateset->addUniform(new osg::Uniform("normalTexture", TEXTURE_UNIT_NORMAL));
+    stateset->setDataVariance(osg::Object::STATIC);
+    root->setStateSet(stateset);
+
+    loadTextures(root, TEXTURE_CONCRETE);
+    loadTextures(root, TEXTURE_ROCKS);
+    addMultiObject(root);
+    return root;
+}
+
+// compute the normal depth map for a osg scene
 cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, float fovX, float fovY) {
     uint height = 500;
 
@@ -146,18 +183,17 @@ cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, flo
     cv::split(cvImage, channels);
     channels[1] = cvDepth;
     cv::merge(channels, cvImage);
-
     cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
     cv::flip(cvImage, cvImage, 0);
 
     return cvImage.clone();
 }
 
+// simple polar plot
 void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
-
     cv::Mat1b imagePlot = cv::Mat1b::zeros(500, 500);
     cv::Point2f centerPlot(imagePlot.cols / 2, 0);
-    double factor = 500 / maxRange;
+    double factor = imagePlot.rows / maxRange;
     double slope = 2 * maxAngleX * (1.0 / (image.cols - 1));
 
     for (int j = 0; j < image.rows; ++j) {
@@ -180,19 +216,18 @@ void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
     cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
               maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
 
-    cv::imshow("Sonar Plot Test", imagePlotMap);
     cv::imshow("Normal Depth Map", image);
+    cv::imshow("Sonar Plot Test", imagePlotMap);
     cv::waitKey();
 }
 
-
 BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
-    float maxRange = 10.0f;
+    float maxRange = 20.0f;
     float fovX = M_PI / 3;  // 60 degrees
     float fovY = M_PI / 3;  // 60 degrees
 
     osg::ref_ptr<osg::Group> simpleRoot = createSimpleScene();
-    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapScene();
+    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapSimpleScene();
 
     cv::Mat cvSimple = computeNormalDepthMap(simpleRoot, maxRange, fovX, fovY);
     cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
@@ -212,4 +247,16 @@ BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     plotSonarTest(cvBump, maxRange, fovX * 0.5);
 }
 
-BOOST_AUTO_TEST_SUITE_END()//
+BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
+    float maxRange = 25.0f;
+    float fovX = M_PI / 4;  // 45 degrees
+    float fovY = M_PI / 4;  // 45 degrees
+
+    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapMultiScene();
+    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
+
+    // plot sonar sample output
+    plotSonarTest(cvBump, maxRange, fovX * 0.5);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
