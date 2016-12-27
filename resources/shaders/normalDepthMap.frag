@@ -8,6 +8,7 @@ uniform float farPlane;
 uniform bool drawNormal;
 uniform bool drawDepth;
 uniform sampler2D normalTexture;
+uniform float reflectance;
 
 out vec4 out_data;
 
@@ -25,6 +26,10 @@ void main() {
     // Normal for untextured scenes
     else
         normNormal = normalize(normal);
+
+    // Material's reflectivity property
+    if (reflectance > 0)
+        normNormal = min(normNormal * reflectance, 1.0);
 
     vec3 normPosition = normalize(-pos);
 
