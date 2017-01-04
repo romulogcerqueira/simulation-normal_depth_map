@@ -259,4 +259,57 @@ BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
     plotSonarTest(cvBump, maxRange, fovX * 0.5);
 }
 
+cv::Mat getNormalGroundTruth() {
+    cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
+
+    normalGroundTruth.at<float>(0,0) = 0.70588;
+    normalGroundTruth.at<float>(1,0) = 0.54509;
+    normalGroundTruth.at<float>(2,0) = 0.29019;
+    normalGroundTruth.at<float>(3,0) = 0.17254;
+
+    normalGroundTruth.at<float>(0,1) = 0.69019;
+    normalGroundTruth.at<float>(1,1) = 0.38823;
+    normalGroundTruth.at<float>(2,1) = 0.27058;
+    normalGroundTruth.at<float>(3,1) = 0.29803;
+
+    normalGroundTruth.at<float>(0,2) = 0.54117;
+    normalGroundTruth.at<float>(1,2) = 0.36470;
+    normalGroundTruth.at<float>(2,2) = 0.33333;
+    normalGroundTruth.at<float>(3,2) = 0.28235;
+
+    normalGroundTruth.at<float>(0,3) = 0.44313;
+    normalGroundTruth.at<float>(1,3) = 0.33333;
+    normalGroundTruth.at<float>(2,3) = 0.15294;
+    normalGroundTruth.at<float>(3,3) = 0.00000;
+
+    return normalGroundTruth;
+}
+
+float roundtoPrecision(float value, int precision) {
+    float output = (float) ((int) (value * pow(10, precision)) / pow(10,precision));
+    return output;
+}
+
+BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
+    float maxRange = 20.0f;
+    float fovX = M_PI / 3;  // 60 degrees
+    float fovY = M_PI / 3;  // 60 degrees
+
+    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapSimpleScene();
+    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
+
+    cv::Mat normalRoi;
+    cv::extractChannel(cvBump(cv::Rect(150,150,4,4)), normalRoi, 0);
+    for (size_t x = 0; x < normalRoi.cols; x++) {
+        for (size_t y = 0; y < normalRoi.rows; y++) {
+            float value = roundtoPrecision(normalRoi.at<float>(y, x), 5);
+            normalRoi.at<float>(y,x) = value;
+        }
+    }
+
+    cv::Mat normalGroundTruth = getNormalGroundTruth();
+
+    BOOST_CHECK(are_equals(normalRoi, normalGroundTruth) == true);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
