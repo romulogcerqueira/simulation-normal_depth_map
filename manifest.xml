@@ -8,6 +8,7 @@
 	<url>http://</url>
 	<logo>http://</logo>
 	<depend package="base/cmake" />
+	<tags>needs_ops</tags>
 	
 	<!-- rock library dependencies -->
 	<depend package="gui/vizkit3d" />

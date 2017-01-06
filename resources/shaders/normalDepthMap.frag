@@ -2,16 +2,35 @@
 
 in vec3 pos;
 in vec3 normal;
+in mat3 TBN;
+
 uniform float farPlane;
-uniform float limitHorizontalAngle;
-uniform float limitVerticalAngle;
 uniform bool drawNormal;
 uniform bool drawDepth;
+uniform sampler2D normalTexture;
+uniform float reflectance;
 
 out vec4 out_data;
 
 void main() {
-    vec4 tempInfo = vec4(0, 0, 0, 0);
+    out_data = vec4(0, 0, 0, 0);
+
+    vec3 normNormal;
+
+    // Normal for textured scenes (by bump mapping)
+    if (textureSize(normalTexture, 0).x > 1) {
+        vec3 bumpedNormal = (texture2D(normalTexture, gl_TexCoord[0].st).rgb * 2.0 - 1.0) * TBN;
+        normNormal = normalize(bumpedNormal);
+    }
+
+    // Normal for untextured scenes
+    else
+        normNormal = normalize(normal);
+
+    // Material's reflectivity property
+    if (reflectance > 0)
+        normNormal = min(normNormal * reflectance, 1.0);
+
     vec3 normPosition = normalize(-pos);
 
     float linearDepth = sqrt(pos.z * pos.z + pos.x * pos.x + pos.y * pos.y);
@@ -19,12 +38,11 @@ void main() {
 
     if (!(linearDepth > 1)) {
         if (drawNormal)
-            tempInfo.zw = vec2(max(dot(normPosition, normalize(normal)), 0), 1.0);
+            out_data.zw = vec2(max(dot(normPosition, normNormal), 0), 1.0);
 
         if (drawDepth)
-            tempInfo.yw = vec2(linearDepth, 1.0);
+            out_data.yw = vec2(linearDepth, 1.0);
     }
 
-    out_data = tempInfo;
     gl_FragDepth = linearDepth;
 }
