@@ -20,7 +20,7 @@ void main() {
     // Normal for textured scenes (by bump mapping)
     if (textureSize(normalTexture, 0).x > 1) {
         vec3 bumpedNormal = (texture2D(normalTexture, gl_TexCoord[0].st).rgb * 2.0 - 1.0) * TBN;
-        normNormal = normalize(bumpedNormal);
+        normNormal = normalize(bumpedNormal) * 0.7;
     }
 
     // Normal for untextured scenes
@@ -37,9 +37,10 @@ void main() {
     linearDepth = linearDepth / farPlane;
 
     if (!(linearDepth > 1)) {
-        if (drawNormal)
-            out_data.zw = vec2(max(dot(normPosition, normNormal), 0), 1.0);
-
+        if (drawNormal){
+            float value = dot(normPosition, normNormal);
+            out_data.zw = vec2( abs(value), 1.0);
+        }
         if (drawDepth)
             out_data.yw = vec2(linearDepth, 1.0);
     }

@@ -191,7 +191,7 @@ void referencePointsFromScene1(
   values.push_back(cv::Point3i(898, 462, 0));
   values.push_back(cv::Point3i(823, 505, 0));
   values.push_back(cv::Point3i(200, 662, 0));
-  values.push_back(cv::Point3i(0, 682, 0));
+  values.push_back(cv::Point3i(58, 682, 0));
   values.push_back(cv::Point3i(686, 474, 0));
   setValues->push_back(values);
   values.clear();
