@@ -17,10 +17,10 @@ void main() {
 
     vec3 normNormal;
 
-    // Normal for textured scenes (by bump mapping)
+    // Normal for textured scenes (by normal mapping)
     if (textureSize(normalTexture, 0).x > 1) {
-        vec3 bumpedNormal = (texture2D(normalTexture, gl_TexCoord[0].st).rgb * 2.0 - 1.0) * TBN;
-        normNormal = normalize(bumpedNormal);
+        vec3 modifiedNormal = (texture2D(normalTexture, gl_TexCoord[0].st).rgb * 2.0 - 1.0) * TBN;
+        normNormal = normalize(modifiedNormal);
     }
 
     // Normal for untextured scenes
