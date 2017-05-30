@@ -8,7 +8,7 @@ void main() {
     pos = (gl_ModelViewMatrix * gl_Vertex).xyz;
     normal = gl_NormalMatrix * gl_Normal;
 
-    // Bump maps are built in tangent space, interpolating the vertex normal and a texture.
+    // Normal maps are built in tangent space, interpolating the vertex normal and a RGB texture.
     // TBN is the conversion matrix between Tangent Space -> World Space.
     vec3 n = normalize(normal);             // normal
     vec3 t = cross(normal, vec3(-1,0,0));   // tangent

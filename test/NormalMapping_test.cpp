@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE "BumpMapping_test"
+#define BOOST_TEST_MODULE "NormalMapping_test"
 #include <boost/test/unit_test.hpp>
 
 // OpenSceneGraph includes
@@ -37,7 +37,7 @@ enum TextureImages {
     TEXTURE_ROCKS
 };
 
-BOOST_AUTO_TEST_SUITE(BumpMapping)
+BOOST_AUTO_TEST_SUITE(NormalMapping)
 
 // check if two matrixes are equals
 bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
@@ -67,7 +67,7 @@ void addMultiObject(osg::ref_ptr<osg::Group> root) {
 }
 
 // define texture attributes
-osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::ref_ptr<osg::Image> diffuseImage, osg::ref_ptr<osg::Image> normalImage) {
+osg::ref_ptr<osg::StateSet> insertNormalMapTexture(osg::ref_ptr<osg::Image> diffuseImage, osg::ref_ptr<osg::Image> normalImage) {
     osg::ref_ptr<osg::Texture2D> diffuse = new osg::Texture2D();
     osg::ref_ptr<osg::Texture2D> normal = new osg::Texture2D();
 
@@ -89,10 +89,10 @@ osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::ref_ptr<osg::Image> diffus
     normal->setResizeNonPowerOfTwoHint(false);
     normal->setMaxAnisotropy(8.0f);
 
-    osg::ref_ptr<osg::StateSet> bumpState = new osg::StateSet();
-    bumpState->setTextureAttributeAndModes(TEXTURE_UNIT_DIFFUSE, diffuse, osg::StateAttribute::ON);
-    bumpState->setTextureAttributeAndModes(TEXTURE_UNIT_NORMAL, normal, osg::StateAttribute::ON);
-    return bumpState;
+    osg::ref_ptr<osg::StateSet> normalState = new osg::StateSet();
+    normalState->setTextureAttributeAndModes(TEXTURE_UNIT_DIFFUSE, diffuse, osg::StateAttribute::ON);
+    normalState->setTextureAttributeAndModes(TEXTURE_UNIT_NORMAL, normal, osg::StateAttribute::ON);
+    return normalState;
 }
 
 // get texture files
@@ -122,7 +122,7 @@ void loadTextures(osg::ref_ptr<osg::Group> root, TextureImages textureId) {
 
     // texture properties
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->setStateSet(insertBumpMapTexture(diffuseImage, normalImage));
+    geode->setStateSet(insertNormalMapTexture(diffuseImage, normalImage));
     root->addChild(geode);
 }
 
@@ -133,8 +133,8 @@ osg::ref_ptr<osg::Group> createSimpleScene() {
     return root;
 }
 
-// create scene with bump mapping and one object
-osg::ref_ptr<osg::Group> createBumpMapSimpleScene() {
+// create scene with normal mapping and one object
+osg::ref_ptr<osg::Group> createNormalMapSimpleScene() {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
     stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
@@ -147,8 +147,8 @@ osg::ref_ptr<osg::Group> createBumpMapSimpleScene() {
     return root;
 }
 
-// create scene with bump mapping and multiple objects
-osg::ref_ptr<osg::Group> createBumpMapMultiScene() {
+// create scene with normal mapping and multiple objects
+osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
     stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
@@ -224,35 +224,35 @@ void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
-    normalGroundTruth.at<float>(0,0) = 0.02352;
-    normalGroundTruth.at<float>(1,0) = 0.03921;
-    normalGroundTruth.at<float>(2,0) = 0.15294;
-    normalGroundTruth.at<float>(3,0) = 0.24313;
-    normalGroundTruth.at<float>(4,0) = 0.30196;
+    normalGroundTruth.at<float>(0,0) = 0.03529;
+    normalGroundTruth.at<float>(1,0) = 0.0549;
+    normalGroundTruth.at<float>(2,0) = 0.2196;
+    normalGroundTruth.at<float>(3,0) = 0.34901;
+    normalGroundTruth.at<float>(4,0) = 0.43137;
 
-    normalGroundTruth.at<float>(0,1) = 0.02745;
-    normalGroundTruth.at<float>(1,1) = 0.11372;
-    normalGroundTruth.at<float>(2,1) = 0.20784;
-    normalGroundTruth.at<float>(3,1) = 0.3098;
-    normalGroundTruth.at<float>(4,1) = 0.35686;
+    normalGroundTruth.at<float>(0,1) = 0.04313;
+    normalGroundTruth.at<float>(1,1) = 0.1647;
+    normalGroundTruth.at<float>(2,1) = 0.29803;
+    normalGroundTruth.at<float>(3,1) = 0.43921;
+    normalGroundTruth.at<float>(4,1) = 0.51372;
 
-    normalGroundTruth.at<float>(0,2) = 0.12156;
-    normalGroundTruth.at<float>(1,2) = 0.1647;
-    normalGroundTruth.at<float>(2,2) = 0.26274;
-    normalGroundTruth.at<float>(3,2) = 0.37254;
-    normalGroundTruth.at<float>(4,2) = 0.38823;
+    normalGroundTruth.at<float>(0,2) = 0.17254;
+    normalGroundTruth.at<float>(1,2) = 0.23529;
+    normalGroundTruth.at<float>(2,2) = 0.37254;
+    normalGroundTruth.at<float>(3,2) = 0.53333;
+    normalGroundTruth.at<float>(4,2) = 0.55686;
 
-    normalGroundTruth.at<float>(0,3) = 0.14901;
-    normalGroundTruth.at<float>(1,3) = 0.16862;
-    normalGroundTruth.at<float>(2,3) = 0.31372;
-    normalGroundTruth.at<float>(3,3) = 0.36862;
-    normalGroundTruth.at<float>(4,3) = 0.37254;
+    normalGroundTruth.at<float>(0,3) = 0.21176;
+    normalGroundTruth.at<float>(1,3) = 0.24313;
+    normalGroundTruth.at<float>(2,3) = 0.44705;
+    normalGroundTruth.at<float>(3,3) = 0.52549;
+    normalGroundTruth.at<float>(4,3) = 0.52941;
 
-    normalGroundTruth.at<float>(0,4) = 0.1647;
-    normalGroundTruth.at<float>(1,4) = 0.21568;
-    normalGroundTruth.at<float>(2,4) = 0.25098;
-    normalGroundTruth.at<float>(3,4) = 0.27843;
-    normalGroundTruth.at<float>(4,4) = 0.28627;
+    normalGroundTruth.at<float>(0,4) = 0.23529;
+    normalGroundTruth.at<float>(1,4) = 0.3098;
+    normalGroundTruth.at<float>(2,4) = 0.36078;
+    normalGroundTruth.at<float>(3,4) = 0.39607;
+    normalGroundTruth.at<float>(4,4) = 0.41176;
 
     return normalGroundTruth;
 }
@@ -269,24 +269,24 @@ BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     float fovY = M_PI / 3;  // 60 degrees
 
     osg::ref_ptr<osg::Group> simpleRoot = createSimpleScene();
-    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapSimpleScene();
+    osg::ref_ptr<osg::Group> normalRoot = createNormalMapSimpleScene();
 
     cv::Mat cvSimple = computeNormalDepthMap(simpleRoot, maxRange, fovX, fovY);
-    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
+    cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
 
-    std::vector<cv::Mat> simpleChannels, bumpChannels;
+    std::vector<cv::Mat> simpleChannels, normalChannels;
     cv::split(cvSimple, simpleChannels);
-    cv::split(cvBump, bumpChannels);
+    cv::split(cvNormal, normalChannels);
 
     // assert that the normal matrixes are different
-    BOOST_CHECK(are_equals(simpleChannels[0], bumpChannels[0]) == false);
+    BOOST_CHECK(are_equals(simpleChannels[0], normalChannels[0]) == false);
 
     // assert that the depth matrixes are equals
-    BOOST_CHECK(are_equals(simpleChannels[1], bumpChannels[1]) == true);
+    BOOST_CHECK(are_equals(simpleChannels[1], normalChannels[1]) == true);
 
     // plot sonar sample output
     plotSonarTest(cvSimple, maxRange, fovX * 0.5);
-    plotSonarTest(cvBump, maxRange, fovX * 0.5);
+    plotSonarTest(cvNormal, maxRange, fovX * 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
@@ -294,11 +294,11 @@ BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
     float fovX = M_PI / 4;  // 45 degrees
     float fovY = M_PI / 4;  // 45 degrees
 
-    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapMultiScene();
-    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
+    osg::ref_ptr<osg::Group> normalRoot = createNormalMapMultiScene();
+    cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
 
     // plot sonar sample output
-    plotSonarTest(cvBump, maxRange, fovX * 0.5);
+    plotSonarTest(cvNormal, maxRange, fovX * 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
@@ -306,13 +306,13 @@ BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
     float fovX = M_PI / 3;  // 60 degrees
     float fovY = M_PI / 3;  // 60 degrees
 
-    osg::ref_ptr<osg::Group> bumpRoot = createBumpMapSimpleScene();
-    cv::Mat cvBump = computeNormalDepthMap(bumpRoot, maxRange, fovX, fovY);
+    osg::ref_ptr<osg::Group> normalRoot = createNormalMapSimpleScene();
+    cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
 
     cv::Mat normalRoi;
-    cv::extractChannel(cvBump(cv::Rect(160,175,5,5)), normalRoi, 0);
-    for (size_t x = 0; x < normalRoi.cols; x++) {
-        for (size_t y = 0; y < normalRoi.rows; y++) {
+    cv::extractChannel(cvNormal(cv::Rect(160,175,5,5)), normalRoi, 0);
+    for (int x = 0; x < normalRoi.cols; x++) {
+        for (int y = 0; y < normalRoi.rows; y++) {
             float value = roundtoPrecision(normalRoi.at<float>(y, x), 5);
             normalRoi.at<float>(y,x) = value;
         }
