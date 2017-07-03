@@ -6,11 +6,8 @@
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/Image>
-#include <osg/Material>
 #include <osg/ShapeDrawable>
 #include <osg/StateSet>
-#include <osg/Texture2D>
-#include <osgDB/ReadFile>
 #include <osgViewer/Viewer>
 
 // Rock includes
@@ -36,20 +33,24 @@ bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
     return (cv::countNonZero(diff) == 0);
 }
 
-// create simple scene without texture
-osg::ref_ptr<osg::Group> createSimpleScene(float reflectance) {
-    osg::ref_ptr<osg::Group> root = new osg::Group();
+// insert a sphere in the scene with desired position, radius and reflectance properties
+void addSimpleObject(osg::ref_ptr<osg::Group> root, osg::Vec3 position, float radius, float reflectance) {
+    // create the drawable
+    osg::ref_ptr<osg::Drawable> drawable = new osg::ShapeDrawable(new osg::Sphere(position, radius));
 
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,-14), 5)));
-    root->addChild(geode);
-    root->getChild(0)->asGeode()->addDrawable(geode->getDrawable(0));
-
+    // create the stateset and add the uniform
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
     stateset->addUniform(new osg::Uniform("reflectance", reflectance));
-    root->setStateSet(stateset);
 
-    return root;
+    // add the stateset to the drawable
+    drawable->setStateSet(stateset);
+
+    if(!root->getNumChildren()) {
+        osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+        root->addChild(geode);
+    }
+
+    root->getChild(0)->asGeode()->addDrawable(drawable);
 }
 
 // compute the normal depth map for a osg scene
@@ -81,19 +82,26 @@ cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, flo
 
 BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     float maxRange = 20.0f;
-    float fovX = M_PI / 3;  // 60 degrees
-    float fovY = M_PI / 3;  // 60 degrees
+    float fovX = M_PI / 3;          // 60 degrees
+    float fovY = M_PI / 3;          // 60 degrees
+    float radius = 5;
+    osg::Vec3 position(0, 0, -14);
 
-    osg::ref_ptr<osg::Group> root1 = createSimpleScene(1.0);
+    // create the scenes
+    osg::ref_ptr<osg::Group> root1 = new osg::Group();
+    addSimpleObject(root1, position, radius, 1.0);
     cv::Mat scene1 = computeNormalDepthMap(root1, maxRange, fovX, fovY);
 
-    osg::ref_ptr<osg::Group> root2 = createSimpleScene(0.35);
+    osg::ref_ptr<osg::Group> root2 = new osg::Group();
+    addSimpleObject(root2, position, radius, 0.35);
     cv::Mat scene2 = computeNormalDepthMap(root2, maxRange, fovX, fovY);
 
-    osg::ref_ptr<osg::Group> root3 = createSimpleScene(1.40);
+    osg::ref_ptr<osg::Group> root3 = new osg::Group();
+    addSimpleObject(root3, position, radius, 1.40);
     cv::Mat scene3 = computeNormalDepthMap(root3, maxRange, fovX, fovY);
 
-    osg::ref_ptr<osg::Group> root4 = createSimpleScene(2.12);
+    osg::ref_ptr<osg::Group> root4 = new osg::Group();
+    addSimpleObject(root4, position, radius, 2.12);
     cv::Mat scene4 = computeNormalDepthMap(root4, maxRange, fovX, fovY);
 
     std::vector<cv::Mat> channels1, channels2, channels3, channels4;
@@ -117,7 +125,26 @@ BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     cv::vconcat(output1, output2, output);
     cv::resize(output, output, cv::Size(output.rows / 2, output.cols / 2));
 
-    cv::imshow("material test", output);
+    cv::imshow("singleobject material test", output);
+    cv::waitKey();
+}
+
+BOOST_AUTO_TEST_CASE(objectsDifferentMaterials_testCase) {
+    float maxRange = 20.0f;
+    float fovX = M_PI / 3;          // 60 degrees
+    float fovY = M_PI / 3;          // 60 degrees
+
+    // create the scene
+    osg::ref_ptr<osg::Group> root = new osg::Group();
+    addSimpleObject(root, osg::Vec3(-3.0,  2.5, -10), 2, 0.5);
+    addSimpleObject(root, osg::Vec3( 0.0, -2.5, -10), 2, 1.0);
+    addSimpleObject(root, osg::Vec3( 3.0,  2.5, -10), 2, 1.5);
+
+    // normal depth map
+    cv::Mat scene = computeNormalDepthMap(root, maxRange, fovX, fovY);
+
+    // output
+    cv::imshow("multiobject material test", scene);
     cv::waitKey();
 }
 
