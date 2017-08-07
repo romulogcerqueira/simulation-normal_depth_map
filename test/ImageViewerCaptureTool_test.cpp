@@ -1,4 +1,4 @@
-#include <vizkit3d_normal_depth_map/ImageViewerCaptureTool.hpp>
+#include <normal_depth_map/ImageViewerCaptureTool.hpp>
 
 #define BOOST_TEST_MODULE "ImageViewerCaptureTool_test"
 #include <boost/test/unit_test.hpp>
@@ -10,9 +10,9 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 
-using namespace vizkit3d_normal_depth_map;
+using namespace normal_depth_map;
 
-BOOST_AUTO_TEST_SUITE(vizkit3d_ImageViewerCaptureTool)
+BOOST_AUTO_TEST_SUITE(test_ImageViewerCaptureTool)
 
 // dataset function
 void viewPointsFromScene(osg::ref_ptr<osg::Geode> scene, std::vector<osg::Vec3d>* eyes, std::vector<osg::Vec3d>* centers, std::vector<osg::Vec3d>* ups, std::vector<osg::Vec4d>* backgrounds,

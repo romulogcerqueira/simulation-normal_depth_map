@@ -6,8 +6,8 @@
  */
 
 #include <iostream>
-#include <vizkit3d_normal_depth_map/ImageViewerCaptureTool.hpp>
-#include <vizkit3d_normal_depth_map/NormalDepthMap.hpp>
+#include <normal_depth_map/ImageViewerCaptureTool.hpp>
+#include <normal_depth_map/NormalDepthMap.hpp>
 
 #include <osg/Geode>
 #include <osg/Group>
@@ -22,9 +22,9 @@
 #define BOOST_TEST_MODULE "NormalDepthMap_test"
 #include <boost/test/unit_test.hpp>
 
-using namespace vizkit3d_normal_depth_map;
+using namespace normal_depth_map;
 
-BOOST_AUTO_TEST_SUITE(vizkit3d_NormalDepthMap)
+BOOST_AUTO_TEST_SUITE(test_NormalDepthMap)
 
 void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX, cv::Mat1f cv_depth) {
 

@@ -5,14 +5,14 @@
  *      Author: tiagotrocoli
  */
 
-#ifndef GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
-#define GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
+#ifndef SIMULATION_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
+#define SIMULATION_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
 
 #include <osg/Node>
 #include <osg/Group>
 #include <osg/ref_ptr>
 
-namespace vizkit3d_normal_depth_map {
+namespace normal_depth_map {
 
 /**
  * @brief Gets the informations of normal and depth from a osg scene, between the objects and the camera.
@@ -85,4 +85,4 @@ private:
 };
 }
 
-#endif /* GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_ */
+#endif /* SIMULATION_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_ */

@@ -12,8 +12,8 @@
 #include <osgViewer/Viewer>
 
 // Rock includes
-#include <vizkit3d_normal_depth_map/NormalDepthMap.hpp>
-#include <vizkit3d_normal_depth_map/ImageViewerCaptureTool.hpp>
+#include <normal_depth_map/NormalDepthMap.hpp>
+#include <normal_depth_map/ImageViewerCaptureTool.hpp>
 
 // OpenCV includes
 #include <opencv2/core/core.hpp>
@@ -24,7 +24,7 @@
 // C++ includes
 #include <iostream>
 
-using namespace vizkit3d_normal_depth_map;
+using namespace normal_depth_map;
 
 enum TextureUnitTypes {
     TEXTURE_UNIT_DIFFUSE,

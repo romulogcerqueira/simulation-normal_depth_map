@@ -16,10 +16,10 @@
 #include <osg/Uniform>
 #include <osgDB/FileUtils>
 
-namespace vizkit3d_normal_depth_map {
+namespace normal_depth_map {
 
-#define SHADER_PATH_FRAG "vizkit3d_normal_depth_map/shaders/normalDepthMap.frag"
-#define SHADER_PATH_VERT "vizkit3d_normal_depth_map/shaders/normalDepthMap.vert"
+#define SHADER_PATH_FRAG "normal_depth_map/shaders/normalDepthMap.frag"
+#define SHADER_PATH_VERT "normal_depth_map/shaders/normalDepthMap.vert"
 
 NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle) {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle);
@@ -113,4 +113,3 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float
 }
 
 }
-
