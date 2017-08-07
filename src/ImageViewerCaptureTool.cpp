@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <osgDB/WriteFile>
 
-namespace vizkit3d_normal_depth_map {
+namespace normal_depth_map {
 
 ImageViewerCaptureTool::ImageViewerCaptureTool(uint width, uint height) {
 

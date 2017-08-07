@@ -1,9 +1,9 @@
-#ifndef GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_H_
-#define GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_H_
+#ifndef SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_
+#define SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_
 
 #include <osgViewer/Viewer>
 
-namespace vizkit3d_normal_depth_map {
+namespace normal_depth_map {
 
 /**
  * @brief Capture the osg::Image from a node scene without show the render window
@@ -108,6 +108,6 @@ protected:
     osg::ref_ptr<osgViewer::Viewer> _viewer;
 };
 
-} /* namespace vizkit3d_normal_depth_map */
+} /* namespace normal_depth_map */
 
-#endif /* GUI_VIZKIT3D_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_H_ */
+#endif /* SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_ */

@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 2.6)
 find_package(Rock)
 
-rock_init(vizkit3d_normal_depth_map 0.1)
+rock_init(normal_depth_map 0.1)
 rock_standard_layout()
 
 install(DIRECTORY resources/shaders/
-    DESTINATION share/vizkit3d_normal_depth_map/shaders)
+    DESTINATION share/normal_depth_map/shaders)
