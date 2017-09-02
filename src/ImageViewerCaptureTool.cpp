@@ -1,7 +1,6 @@
 #include "ImageViewerCaptureTool.hpp"
 #include <iostream>
 #include <unistd.h>
-#include <osgDB/WriteFile>
 
 namespace normal_depth_map {
 
@@ -30,28 +29,37 @@ ImageViewerCaptureTool::ImageViewerCaptureTool( double fovY, double fovX,
 }
 
 void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
-    // initialize the hide viewer;
     _viewer = new osgViewer::Viewer;
-    osg::Camera *camera = this->_viewer->getCamera();
+
     osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
     traits->width = width;
     traits->height = height;
     traits->pbuffer = true;
     traits->readDISPLAY();
-    osg::ref_ptr<osg::GraphicsContext> gc = osg::GraphicsContext::createGraphicsContext(traits.get());
-    camera->setGraphicsContext(gc);
+
+    osg::ref_ptr<osg::Camera> camera = this->_viewer->getCamera();
+    osg::ref_ptr<osg::GraphicsContext> gfxc = osg::GraphicsContext::createGraphicsContext(traits.get());
+    camera->setGraphicsContext(gfxc);
     camera->setDrawBuffer(GL_FRONT);
     camera->setViewport(new osg::Viewport(0, 0, width, height));
 
     // initialize the class to get the image in float data resolution
-    _capture = new WindowCaptureScreen(gc);
-    _viewer->getCamera()->setFinalDrawCallback(_capture);
+    _capture = new WindowCaptureScreen(gfxc);
+    camera->setFinalDrawCallback(_capture);
 }
 
 osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(osg::ref_ptr<osg::Node> node) {
+    // set the current root node
     _viewer->setSceneData(node);
+
+    // if the view matrix is invalid (NaN), use the identity
+    osg::ref_ptr<osg::Camera> camera = _viewer->getCamera();
+    if (camera->getViewMatrix().isNaN())
+        camera->setViewMatrix(osg::Matrix::identity());
+
+    // grab the current frame
     _viewer->frame();
-    return _capture->captureImage();;
+    return _capture->captureImage();
 }
 
 osg::ref_ptr<osg::Image> ImageViewerCaptureTool::getDepthBuffer() {
