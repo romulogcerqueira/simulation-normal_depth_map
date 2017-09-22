@@ -59,6 +59,16 @@ float NormalDepthMap::getMaxVerticalAngle() {
     return maxVerticalAngle;
 }
 
+void NormalDepthMap::setAttenuationCoefficient(float coefficient) {
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->set(coefficient);
+}
+
+float NormalDepthMap::getAttenuationCoefficient() {
+    float coefficient = 0;
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->get(coefficient);
+    return coefficient;
+}
+
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
     _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->set(drawNormal);
 }
