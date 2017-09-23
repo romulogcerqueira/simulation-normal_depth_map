@@ -18,7 +18,8 @@ namespace normal_depth_map {
  * @brief Gets the informations of normal and depth from a osg scene, between the objects and the camera.
  *
  * Using a shaders render process, it is build a map with two values:
- *  The dot product with normal vector of the object surface and the camera normal vector, called normal value;
+ *  The dot product with normal vector of the object surface and the camera
+ *    normal vector, called normal value;
  *  The distance between the objects and the camera, called depth value;
  *
  */
@@ -48,6 +49,7 @@ public:
      */
     NormalDepthMap();
     NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle);
+    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, float attenuationCoeff);
 
     /**
      * @brief Add the models in the normal depth map node
@@ -63,6 +65,7 @@ public:
         return _normalDepthMapNode;
     }
 
+
     void setMaxRange(float maxRange);
     float getMaxRange();
 
@@ -72,6 +75,9 @@ public:
     void setMaxVerticalAngle(float maxVerticalAngle);
     float getMaxVerticalAngle();
 
+    void setAttenuationCoefficient(float coefficient);
+    float getAttenuationCoefficient();
+
     void setDrawNormal(bool drawNormal);
     bool isDrawNormal();
 
@@ -79,8 +85,14 @@ public:
     bool isDrawDepth();
 
 private:
-    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(float maxRange = 50.0, float maxHorizontalAngle = M_PI * 1.0 / 6.0, float maxVerticalAngle = M_PI * 1.0 / 6.0, bool drawDepth = true,
-            bool drawNormal = true);
+
+    osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(
+                              float maxRange = 50.0,
+                              float maxHorizontalAngle = M_PI * 1.0 / 6.0,
+                              float maxVerticalAngle = M_PI * 1.0 / 6.0,
+                              float attenuationCoefficient = 0,
+                              bool drawDepth = true,
+                              bool drawNormal = true);
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
 };
 }
