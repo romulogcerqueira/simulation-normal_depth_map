@@ -21,12 +21,14 @@ using namespace normal_depth_map;
 BOOST_AUTO_TEST_SUITE(test_NormalDepthMap)
 
 BOOST_AUTO_TEST_CASE(attenuationCalculation_testCase){
-   double temperature = 20.0; // celsius
-   double frequency = 700;    // kHz
-   double depth_rate = 1;     // meters
+    double frequency = 700.0;   // kHz
+    double temperature = 20.0;  // celsius degrees
+    double depth = 1;           // meters
+    double salinity = 35;       // ppt
+    double acidity = 8.1;       // pH
 
-   double attenuation_coeff = underwaterSignalAttenuation(temperature, frequency, depth_rate);
-   BOOST_CHECK_CLOSE(attenuation_coeff, 0.013, 2);
+    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
+    BOOST_CHECK_CLOSE(attenuationCoeff, 0.0247, 3);
 }
 
 // simple sonar plot
@@ -151,10 +153,12 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
     uint height = 500;
 
     // attenuation coefficient
-    double temperature = 20.0;      // 20 Celsius degrees
-    double frequency = 700.0;       // 700 kHz
-    double depth_rate = 10;         // 10 meters
-    double attenuationCoeff = underwaterSignalAttenuation(temperature, frequency, depth_rate);
+    double frequency = 700.0;   // kHz
+    double temperature = 20.0;  // celsius degrees
+    double depth = 1;           // meters
+    double salinity = 0;        // ppt
+    double acidity = 8;         // pH
+    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
 
      // define the different camera point of views
     std::vector<osg::Vec3d> eyes, centers, ups;

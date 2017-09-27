@@ -6,20 +6,24 @@ namespace normal_depth_map {
   /**
    * @brief compute Underwater Signal Attenuation coefficient
    *
-   * This method is based on paper "Development of acoustic camera-imaging
-   *  simulator based on novel model". The method computes the attenuation
+   *  This method is based on paper "A simplified formula for viscous and
+   *  chemical absorption in sea water". The method computes the attenuation
    *  coefficient that will be used on shader normal intensite return.
    *
-   *  @param double temperature: water temperature in celsius.
    *  @param double frequency: sound frequency in kHz.
-   *  @param double depth_rate: distance from water suface in meters.
+   *  @param double temperature: water temperature in Celsius degrees.
+   *  @param double depth: distance from water surface in meters.
+   *  @param double salinity: amount of salt dissolved in a body of water in ppt.
+   *  @param double acidity: pH water value.
    *
    *  @return double coefficient attenuation value
    */
 
-  double underwaterSignalAttenuation( const double temperature,
-                                      const double frequency,
-                                      const double depth_rate);
+  double underwaterSignalAttenuation( const double frequency,
+                                      const double temperature,
+                                      const double depth,
+                                      const double salinity,
+                                      const double acidity);
 }
 
 #endif

@@ -1,28 +1,40 @@
+// C++ includes
 #include "Tools.hpp"
-
 #include <cmath>
 
 namespace normal_depth_map {
 
-double underwaterSignalAttenuation(
-                                const double temperature,
-                                const double frequency,
-                                const double depth_rate) {
+double underwaterSignalAttenuation( const double frequency,
+                                    const double temperature,
+                                    const double depth,
+                                    const double salinity,
+                                    const double acidity) {
 
-    // compute absorptive attenuation coefficient in db/km
-    double calc_depth = depth_rate / 17000;
-    double calc_temp = temperature / 27.0;
-    double alpha = 0.00049 * frequency * frequency;
-    alpha = alpha * exp( -( calc_temp + calc_depth ) );
+    // borid acid and magnesium sulphate relaxation frequencies (in kHz)
+    double f1 = 0.78 * pow(salinity / 35, 0.5) * exp(temperature / 26);
+    double f2 = 42 * exp(temperature / 17);
 
-    // convert db/km to db/m
-    alpha = alpha/1000.0;
+    // borid acid contribution
+    double borid = 0.106 * ((f1 * frequency * frequency) / (frequency * frequency + f1 * f1)) * exp((acidity - 8) / 0.56);
 
-    // convert to pascal per meter (Pa/m)
-    alpha = pow( 10, -alpha/20.0 );
-    alpha = -log( alpha );
+    // magnesium sulphate contribuion
+    double magnesium = 0.52 * (1 + temperature / 43) * (salinity / 35)
+                        * ((f2 * frequency * frequency) / (frequency * frequency + f2 * f2)) * exp(-depth / 6000);
 
-    return alpha;
+    // freshwater contribution
+    double freshwater = 0.00049 * frequency * frequency * exp(-(temperature / 27 + depth / 17000));
+
+    // absorptium attenuation coefficient in dB/km
+    double attenuation = borid + magnesium + freshwater;
+
+    // convert dB/km to dB/m
+    attenuation = attenuation / 1000.0;
+
+    // convert dB/m to Pa/m
+    attenuation = pow(10, -attenuation / 20);
+    attenuation = -log(attenuation);
+
+    return attenuation;
 }
 
 }
