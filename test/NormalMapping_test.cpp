@@ -9,22 +9,17 @@
 #include <osg/StateSet>
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
-#include <osgViewer/Viewer>
 
 // Rock includes
 #include <normal_depth_map/NormalDepthMap.hpp>
 #include <normal_depth_map/ImageViewerCaptureTool.hpp>
-
-// OpenCV includes
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/contrib/contrib.hpp>
+#include "TestHelper.hpp"
 
 // C++ includes
 #include <iostream>
 
 using namespace normal_depth_map;
+using namespace test_helper;
 
 enum TextureUnitTypes {
     TEXTURE_UNIT_DIFFUSE,
@@ -38,12 +33,6 @@ enum TextureImages {
 };
 
 BOOST_AUTO_TEST_SUITE(NormalMapping)
-
-// check if two matrixes are equals
-bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
-    cv::Mat diff = image1 != image2;
-    return (cv::countNonZero(diff) == 0);
-}
 
 // add one object to scene (sphere)
 void addSimpleObject(osg::ref_ptr<osg::Group> root) {
@@ -162,65 +151,6 @@ osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
     return root;
 }
 
-// compute the normal depth map for a osg scene
-cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, float fovX, float fovY) {
-    uint height = 500;
-
-    // normal depth map
-    NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5);
-    ImageViewerCaptureTool capture(fovY, fovX, height);
-    capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
-    normalDepthMap.addNodeChild(root);
-
-    // grab scene
-    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
-    osg::ref_ptr<osg::Image> osgDepth = capture.getDepthBuffer();
-    cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
-    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(), CV_32FC1, osgDepth->data());
-    cvDepth = cvDepth.mul( cv::Mat1f(cvDepth < 1) / 255);
-
-    std::vector<cv::Mat> channels;
-    cv::split(cvImage, channels);
-    channels[1] = cvDepth;
-    cv::merge(channels, cvImage);
-    cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
-    cv::flip(cvImage, cvImage, 0);
-
-    return cvImage.clone();
-}
-
-// simple polar plot
-void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
-    cv::Mat1b imagePlot = cv::Mat1b::zeros(500, 500);
-    cv::Point2f centerPlot(imagePlot.cols / 2, 0);
-    double factor = imagePlot.rows / maxRange;
-    double slope = 2 * maxAngleX * (1.0 / (image.cols - 1));
-
-    for (int j = 0; j < image.rows; ++j) {
-        for (int i = 0; i < image.cols; ++i) {
-            double distance = image[j][i][1] * maxRange;
-            double alpha = slope * i - maxAngleX;
-
-            cv::Point2f tempPoint(distance * sin(alpha), distance * cos(alpha));
-            tempPoint = tempPoint * factor + centerPlot;
-            imagePlot[(uint) tempPoint.y][(uint) tempPoint.x] = 255 * image[j][i][0];
-        }
-    }
-
-    cv::Mat3b imagePlotMap;
-    cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
-
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
-              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
-
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
-              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
-
-    cv::imshow("Normal Depth Map", image);
-    cv::imshow("Sonar Plot Test", imagePlotMap);
-    cv::waitKey();
-}
-
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
@@ -257,36 +187,37 @@ cv::Mat getNormalGroundTruth() {
     return normalGroundTruth;
 }
 
-float roundtoPrecision(float value, int precision) {
-    float output = (float) ((int) (value * pow(10, precision)) / pow(10,precision));
-    return output;
-}
-
-
 BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     float maxRange = 20.0f;
     float fovX = M_PI / 3;  // 60 degrees
     float fovY = M_PI / 3;  // 60 degrees
 
-    osg::ref_ptr<osg::Group> simpleRoot = createSimpleScene();
+    osg::ref_ptr<osg::Group> rawRoot = createSimpleScene();
     osg::ref_ptr<osg::Group> normalRoot = createNormalMapSimpleScene();
 
-    cv::Mat cvSimple = computeNormalDepthMap(simpleRoot, maxRange, fovX, fovY);
-    cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
+    cv::Mat rawShader    = computeNormalDepthMap(rawRoot, maxRange, fovX, fovY);
+    cv::Mat normalShader = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
 
-    std::vector<cv::Mat> simpleChannels, normalChannels;
-    cv::split(cvSimple, simpleChannels);
-    cv::split(cvNormal, normalChannels);
+    cv::Mat rawSonar    = drawSonarImage(rawShader, maxRange, fovX * 0.5);
+    cv::Mat normalSonar = drawSonarImage(normalShader, maxRange, fovX * 0.5);
+
+    std::vector<cv::Mat> rawChannels, normalChannels;
+    cv::split(rawShader, rawChannels);
+    cv::split(normalShader, normalChannels);
 
     // assert that the normal matrixes are different
-    BOOST_CHECK(are_equals(simpleChannels[0], normalChannels[0]) == false);
+    BOOST_CHECK(areEquals(rawChannels[0], normalChannels[0]) == false);
 
     // assert that the depth matrixes are equals
-    BOOST_CHECK(are_equals(simpleChannels[1], normalChannels[1]) == true);
+    BOOST_CHECK(areEquals(rawChannels[1], normalChannels[1]) == true);
 
     // plot sonar sample output
-    plotSonarTest(cvSimple, maxRange, fovX * 0.5);
-    plotSonarTest(cvNormal, maxRange, fovX * 0.5);
+    cv::Mat compShader, compSonar;
+    cv::hconcat(rawShader, normalShader, compShader);
+    cv::hconcat(rawSonar, normalSonar, compSonar);
+    cv::imshow("shader images - single object", compShader);
+    cv::imshow("sonar images - single object", compSonar);
+    cv::waitKey();
 }
 
 BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
@@ -295,10 +226,13 @@ BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
     float fovY = M_PI / 4;  // 45 degrees
 
     osg::ref_ptr<osg::Group> normalRoot = createNormalMapMultiScene();
-    cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
+    cv::Mat normalShader = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
+    cv::Mat normalSonar  = drawSonarImage(normalShader, maxRange, fovX * 0.5);
 
     // plot sonar sample output
-    plotSonarTest(cvNormal, maxRange, fovX * 0.5);
+    cv::imshow("shader image - multi object", normalShader);
+    cv::imshow("sonar image - multi object", normalSonar);
+    cv::waitKey();
 }
 
 BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
@@ -311,16 +245,10 @@ BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
 
     cv::Mat normalRoi;
     cv::extractChannel(cvNormal(cv::Rect(160,175,5,5)), normalRoi, 0);
-    for (int x = 0; x < normalRoi.cols; x++) {
-        for (int y = 0; y < normalRoi.rows; y++) {
-            float value = roundtoPrecision(normalRoi.at<float>(y, x), 5);
-            normalRoi.at<float>(y,x) = value;
-        }
-    }
-
+    roundMat(normalRoi, 5);
     cv::Mat normalGroundTruth = getNormalGroundTruth();
 
-    BOOST_CHECK(are_equals(normalRoi, normalGroundTruth) == true);
+    BOOST_CHECK(areEquals(normalRoi, normalGroundTruth) == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -2,36 +2,18 @@
 #include <boost/test/unit_test.hpp>
 
 // OpenSceneGraph includes
-#include <osg/AlphaFunc>
 #include <osg/Geode>
 #include <osg/Group>
-#include <osg/Image>
 #include <osg/ShapeDrawable>
-#include <osg/StateSet>
-#include <osgViewer/Viewer>
 
 // Rock includes
-#include <normal_depth_map/NormalDepthMap.hpp>
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
-
-// OpenCV includes
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/contrib/contrib.hpp>
-
-// C++ includes
-#include <iostream>
+#include <normal_depth_map/Tools.hpp>
+#include "TestHelper.hpp"
 
 using namespace normal_depth_map;
+using namespace test_helper;
 
 BOOST_AUTO_TEST_SUITE(MaterialProperties)
-
-// check if two matrixes are equals
-bool are_equals (const cv::Mat& image1, const cv::Mat& image2) {
-    cv::Mat diff = image1 != image2;
-    return (cv::countNonZero(diff) == 0);
-}
 
 // insert a sphere in the scene with desired position, radius and reflectance properties
 void addSimpleObject(osg::ref_ptr<osg::Group> root, osg::Vec3 position, float radius, float reflectance) {
@@ -53,38 +35,12 @@ void addSimpleObject(osg::ref_ptr<osg::Group> root, osg::Vec3 position, float ra
     root->getChild(0)->asGeode()->addDrawable(drawable);
 }
 
-// compute the normal depth map for a osg scene
-cv::Mat computeNormalDepthMap(osg::ref_ptr<osg::Group> root, float maxRange, float fovX, float fovY) {
-    uint height = 500;
-
-    // normal depth map
-    NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5);
-    ImageViewerCaptureTool capture(fovY, fovX, height);
-    capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
-    normalDepthMap.addNodeChild(root);
-
-    // grab scene
-    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
-    osg::ref_ptr<osg::Image> osgDepth = capture.getDepthBuffer();
-    cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
-    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(), CV_32FC1, osgDepth->data());
-    cvDepth = cvDepth.mul( cv::Mat1f(cvDepth < 1) / 255);
-
-    std::vector<cv::Mat> channels;
-    cv::split(cvImage, channels);
-    channels[1] = cvDepth;
-    cv::merge(channels, cvImage);
-    cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
-    cv::flip(cvImage, cvImage, 0);
-
-    return cvImage.clone();
-}
-
 BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     float maxRange = 20.0f;
     float fovX = M_PI / 3;          // 60 degrees
     float fovY = M_PI / 3;          // 60 degrees
     float radius = 5;
+    // uint height = 500;
     osg::Vec3 position(0, 0, -14);
 
     // create the scenes
@@ -111,12 +67,12 @@ BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     cv::split(scene4, channels4);
 
     // assert that normal matrixes are differents
-    BOOST_CHECK(are_equals(channels1[0], channels2[0]) == false);
-    BOOST_CHECK(are_equals(channels1[0], channels3[0]) == false);
-    BOOST_CHECK(are_equals(channels1[0], channels4[0]) == false);
-    BOOST_CHECK(are_equals(channels2[0], channels3[0]) == false);
-    BOOST_CHECK(are_equals(channels2[0], channels4[0]) == false);
-    BOOST_CHECK(are_equals(channels3[0], channels4[0]) == false);
+    BOOST_CHECK(areEquals(channels1[0], channels2[0]) == false);
+    BOOST_CHECK(areEquals(channels1[0], channels3[0]) == false);
+    BOOST_CHECK(areEquals(channels1[0], channels4[0]) == false);
+    BOOST_CHECK(areEquals(channels2[0], channels3[0]) == false);
+    BOOST_CHECK(areEquals(channels2[0], channels4[0]) == false);
+    BOOST_CHECK(areEquals(channels3[0], channels4[0]) == false);
 
     // output
     cv::Mat output1, output2, output;

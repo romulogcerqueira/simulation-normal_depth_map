@@ -1,24 +1,17 @@
+// C++ includes
 #include <iostream>
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
-#include <normal_depth_map/NormalDepthMap.hpp>
+
+// Rock includes
 #include <normal_depth_map/Tools.hpp>
-
-#include <osg/Geode>
-#include <osg/Group>
-#include <osg/ShapeDrawable>
-#include <osgDB/ReadFile>
-
-#include <opencv2/contrib/contrib.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "TestHelper.hpp"
 
 #define BOOST_TEST_MODULE "Attenuation_test"
 #include <boost/test/unit_test.hpp>
 
 using namespace normal_depth_map;
+using namespace test_helper;
 
-BOOST_AUTO_TEST_SUITE(test_NormalDepthMap)
+BOOST_AUTO_TEST_SUITE(AcousticAttenuation)
 
 BOOST_AUTO_TEST_CASE(attenuationCalculation_testCase){
     double frequency = 700.0;   // kHz
@@ -31,150 +24,134 @@ BOOST_AUTO_TEST_CASE(attenuationCalculation_testCase){
     BOOST_CHECK_CLOSE(attenuationCoeff, 0.0247, 3);
 }
 
-// simple sonar plot
-void plotSonarTest(cv::Mat3f image, double maxRange, double maxAngleX) {
-    cv::Mat1b imagePlot = cv::Mat1b::zeros(500, 500);
-    cv::Point2f centerPlot(imagePlot.cols / 2, 0);
-    double factor = imagePlot.rows / maxRange;
-    double slope = 2 * maxAngleX * (1.0 / (image.cols - 1));
+void getReferencePoints(std::vector<cv::Mat>& referencePoints) {
+    cv::Mat view1 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
+    view1.at<float>(0,0) = 0.1019;
+    view1.at<float>(0,1) = 0.0666;
+    view1.at<float>(0,2) = 0.0745;
+    view1.at<float>(0,3) = 0.0823;
+    view1.at<float>(1,0) = 0.1098;
+    view1.at<float>(1,1) = 0.0627;
+    view1.at<float>(1,2) = 0.0705;
+    view1.at<float>(1,3) = 0.0745;
+    view1.at<float>(2,0) = 0.1176;
+    view1.at<float>(2,1) = 0.0588;
+    view1.at<float>(2,2) = 0.0627;
+    view1.at<float>(2,3) = 0.0705;
+    view1.at<float>(3,0) = 0.1176;
+    view1.at<float>(3,1) = 0.0549;
+    view1.at<float>(3,2) = 0.0588;
+    view1.at<float>(3,3) = 0.0666;
 
-    for (int j = 0; j < image.rows; ++j) {
-        for (int i = 0; i < image.cols; ++i) {
-            double distance = image[j][i][1] * maxRange;
-            double alpha = slope * i - maxAngleX;
+    cv::Mat view2 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
+    view2.at<float>(0,0) = 0.3490;
+    view2.at<float>(0,1) = 0.3490;
+    view2.at<float>(0,2) = 0.3490;
+    view2.at<float>(0,3) = 0.3490;
+    view2.at<float>(1,0) = 0.3490;
+    view2.at<float>(1,1) = 0.3490;
+    view2.at<float>(1,2) = 0.3490;
+    view2.at<float>(1,3) = 0.3490;
+    view2.at<float>(2,0) = 0.3490;
+    view2.at<float>(2,1) = 0.3490;
+    view2.at<float>(2,2) = 0.3490;
+    view2.at<float>(2,3) = 0.3490;
+    view2.at<float>(3,0) = 0.3490;
+    view2.at<float>(3,1) = 0.3490;
+    view2.at<float>(3,2) = 0.3490;
+    view2.at<float>(3,3) = 0.3450;
 
-            cv::Point2f tempPoint(distance * sin(alpha), distance * cos(alpha));
-            tempPoint = tempPoint * factor + centerPlot;
-            imagePlot[(uint) tempPoint.y][(uint) tempPoint.x] = 255 * image[j][i][0];
-        }
-    }
+    cv::Mat view3 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
+    view3.at<float>(0,0) = 0.3490;
+    view3.at<float>(0,1) = 0.3490;
+    view3.at<float>(0,2) = 0.3529;
+    view3.at<float>(0,3) = 0.3529;
+    view3.at<float>(1,0) = 0.3490;
+    view3.at<float>(1,1) = 0.3490;
+    view3.at<float>(1,2) = 0.3490;
+    view3.at<float>(1,3) = 0.3529;
+    view3.at<float>(2,0) = 0.3490;
+    view3.at<float>(2,1) = 0.3490;
+    view3.at<float>(2,2) = 0.3490;
+    view3.at<float>(2,3) = 0.3490;
+    view3.at<float>(3,0) = 0.3490;
+    view3.at<float>(3,1) = 0.3490;
+    view3.at<float>(3,2) = 0.3490;
+    view3.at<float>(3,3) = 0.3490;
 
-    cv::Mat3b imagePlotMap;
-    cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
+    cv::Mat view4 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
+    view4.at<float>(0,0) = 0.5529;
+    view4.at<float>(0,1) = 0.5529;
+    view4.at<float>(0,2) = 0.5529;
+    view4.at<float>(0,3) = 0.5529;
+    view4.at<float>(1,0) = 0.5529;
+    view4.at<float>(1,1) = 0.5529;
+    view4.at<float>(1,2) = 0.5529;
+    view4.at<float>(1,3) = 0.5529;
+    view4.at<float>(2,0) = 0.5529;
+    view4.at<float>(2,1) = 0.5529;
+    view4.at<float>(2,2) = 0.5529;
+    view4.at<float>(2,3) = 0.5529;
+    view4.at<float>(3,0) = 0.5529;
+    view4.at<float>(3,1) = 0.5529;
+    view4.at<float>(3,2) = 0.5529;
+    view4.at<float>(3,3) = 0.5529;
 
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
-              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
-
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
-              maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
-
-    cv::imshow("Normal Depth Map", image);
-    cv::imshow("Sonar Plot Test", imagePlotMap);
-    cv::waitKey();
+    referencePoints.push_back(view1);
+    referencePoints.push_back(view2);
+    referencePoints.push_back(view3);
+    referencePoints.push_back(view4);
 }
 
-// compute the normal depth map for a osg scene
-cv::Mat computeNormalDepthMap(  osg::ref_ptr<osg::Group> root,
-                                uint height,
-                                float maxRange,
-                                float fovX,
-                                float fovY,
-                                double attenuationCoeff,
-                                osg::Vec3d eye,
-                                osg::Vec3d center,
-                                osg::Vec3d up
-                            ) {
-    // normal depth map
-    NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5, attenuationCoeff);
-    ImageViewerCaptureTool capture(fovY, fovX, height);
-    capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
-    capture.setCameraPosition(eye, center, up);
-    normalDepthMap.setDrawNormal(true);
-    normalDepthMap.setDrawDepth(true);
-    normalDepthMap.addNodeChild(root);
-
-    // grab scene
-    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
-    osg::ref_ptr<osg::Image> osgDepth = capture.getDepthBuffer();
-    cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
-    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(), CV_32FC1, osgDepth->data());
-    cvDepth = cvDepth.mul( cv::Mat1f(cvDepth < 1) / 255);
-
-    std::vector<cv::Mat> channels;
-    cv::split(cvImage, channels);
-    channels[1] = cvDepth;
-    cv::merge(channels, cvImage);
-    cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
-    cv::flip(cvImage, cvImage, 0);
-
-    return cvImage.clone();
-}
-
-// draw the scene with a small ball in the center with a big cube, cylinder and cone in back
-void makeSimpleScene(osg::ref_ptr<osg::Group> root) {
-    osg::Geode *sphere = new osg::Geode();
-    sphere->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(), 1)));
-    root->addChild(sphere);
-
-    osg::Geode *cylinder = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(30, 0, 10), 10, 10)));
-    root->addChild(cylinder);
-
-    osg::Geode *cone = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 30, 0), 10, 10)));
-    root->addChild(cone);
-
-    osg::Geode *box = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, -30, -10), 10)));
-    root->addChild(box);
-}
-
-// define different point of views of the same scene
-void viewPointsFromScene(std::vector<osg::Vec3d> *eyes,
-                          std::vector<osg::Vec3d> *centers,
-                          std::vector<osg::Vec3d> *ups) {
-
-    // point of view 1 - near from the ball with the cylinder in back
-    eyes->push_back(osg::Vec3d(-8.77105, -4.20531, -3.24954));
-    centers->push_back(osg::Vec3d(-7.84659, -4.02528, -2.91345));
-    ups->push_back(osg::Vec3d(-0.123867, -0.691871, 0.711317));
-
-    // point of view 2 - near from the ball with the cube in back
-    eyes->push_back(osg::Vec3d(3.38523, 10.093, 1.12854));
-    centers->push_back(osg::Vec3d(3.22816, 9.12808, 0.918259));
-    ups->push_back(osg::Vec3d(-0.177264, -0.181915, 0.967204));
-
-    // point of view 3 - near the cone in up side
-    eyes->push_back(osg::Vec3d(-10.6743, 38.3461, 26.2601));
-    centers->push_back(osg::Vec3d(-10.3734, 38.086, 25.3426));
-    ups->push_back(osg::Vec3d(0.370619, -0.854575, 0.36379));
-
-    // point of view 4 - Faced the cube plane
-    eyes->push_back(osg::Vec3d(0.0176255, -56.5841, -10.0666));
-    centers->push_back(osg::Vec3d(0.0176255, -55.5841, -10.0666));
-    ups->push_back(osg::Vec3d(0, 0, 1));
-}
-
-BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
+BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     // sonar parameters
     float maxRange = 50;            // 50 meters
-    float fovX = M_PI * 1.0 / 6;    // 30 degrees
-    float fovY = M_PI * 1.0 / 6;    // 30 degrees
-    uint height = 500;
+    float fovX = M_PI / 6;    // 30 degrees
+    float fovY = M_PI / 6;    // 30 degrees
 
     // attenuation coefficient
-    double frequency = 700.0;   // kHz
-    double temperature = 20.0;  // celsius degrees
-    double depth = 1;           // meters
-    double salinity = 0;        // ppt
-    double acidity = 8;         // pH
+    double frequency = 700.0;       // kHz
+    double temperature = 20.0;      // celsius degrees
+    double depth = 1;               // meters
+    double salinity = 0;            // ppt
+    double acidity = 8;             // pH
     double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
 
      // define the different camera point of views
     std::vector<osg::Vec3d> eyes, centers, ups;
-    viewPointsFromScene(&eyes, &centers, &ups);
+    viewPointsFromDemoScene(&eyes, &centers, &ups);
 
     // create a simple scene with multiple objects
     osg::ref_ptr<osg::Group> root = new osg::Group();
-    makeSimpleScene(root);
+    makeDemoScene(root);
 
-    // display the same with and without underwater acoustic attenuation
+    // get reference points in a defined position
+    cv::Rect roi(175,400,4,4);
+    std::vector<cv::Mat> referencePoints;
+    getReferencePoints(referencePoints);
+
+    // display the same scene with and without underwater acoustic attenuation
     for (uint i = 0; i < eyes.size(); ++i) {
-        cv::Mat raw_shader = computeNormalDepthMap(root, height, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
-        cv::Mat att_shader = computeNormalDepthMap(root, height, maxRange, fovX, fovY, attenuationCoeff, eyes[i], centers[i], ups[i]);
-        plotSonarTest(raw_shader, maxRange, fovX * 0.5);
-        plotSonarTest(att_shader, maxRange, fovX * 0.5);
-  }
+        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
+        cv::Mat rawSonar  = drawSonarImage(rawShader, maxRange, fovX * 0.5);
+
+        cv::Mat attShader = computeNormalDepthMap(root, maxRange, fovX, fovY, attenuationCoeff, eyes[i], centers[i], ups[i]);
+        cv::Mat attSonar  = drawSonarImage(attShader, maxRange, fovX * 0.5);
+
+        // check with reference points
+        cv::Mat localPoints;
+        cv::extractChannel(attShader(roi), localPoints, 0);
+        roundMat(localPoints, 4);
+        BOOST_CHECK(areEquals(localPoints, referencePoints[i]) == true);
+
+        // output
+        cv::Mat compShader, compSonar;
+        cv::hconcat(rawShader, attShader, compShader);
+        cv::hconcat(rawSonar, attSonar, compSonar);
+        cv::imshow("shader images", compShader);
+        cv::imshow("sonar images", compSonar);
+        cv::waitKey();
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END();
