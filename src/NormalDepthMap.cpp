@@ -25,6 +25,10 @@ NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float m
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle);
 }
 
+NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, float attenuationCoeff) {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle, attenuationCoeff);
+}
+
 NormalDepthMap::NormalDepthMap() {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode();
 }
@@ -59,6 +63,16 @@ float NormalDepthMap::getMaxVerticalAngle() {
     return maxVerticalAngle;
 }
 
+void NormalDepthMap::setAttenuationCoefficient(float coefficient) {
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->set(coefficient);
+}
+
+float NormalDepthMap::getAttenuationCoefficient() {
+    float coefficient = 0;
+    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->get(coefficient);
+    return coefficient;
+}
+
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
     _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->set(drawNormal);
 }
@@ -83,7 +97,14 @@ void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     _normalDepthMapNode->addChild(node);
 }
 
-osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, bool drawDepth, bool drawNormal) {
+osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
+                                                float maxRange,
+                                                float maxHorizontalAngle,
+                                                float maxVerticalAngle,
+                                                float attenuationCoefficient,
+                                                bool drawDepth,
+                                                bool drawNormal) {
+
     osg::ref_ptr<osg::Group> localRoot = new osg::Group();
     osg::ref_ptr<osg::Program> program(new osg::Program());
 
@@ -94,6 +115,9 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(float
 
     osg::ref_ptr<osg::StateSet> ss = localRoot->getOrCreateStateSet();
     ss->setAttribute(program);
+
+    osg::ref_ptr<osg::Uniform> attenuationCoefficientUniform(new osg::Uniform("attenuationCoeff", attenuationCoefficient));
+    ss->addUniform(attenuationCoefficientUniform);
 
     osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", maxRange));
     ss->addUniform(farPlaneUniform);

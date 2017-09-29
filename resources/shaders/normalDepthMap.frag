@@ -9,6 +9,7 @@ uniform bool drawNormal;
 uniform bool drawDepth;
 uniform sampler2D normalTexture;
 uniform float reflectance;
+uniform float attenuationCoeff;
 
 out vec4 out_data;
 
@@ -34,6 +35,10 @@ void main() {
     vec3 normPosition = normalize(-pos);
 
     float linearDepth = sqrt(pos.z * pos.z + pos.x * pos.x + pos.y * pos.y);
+
+    // Attenuation effect of sound in the water
+    normNormal = normNormal * exp(-2 * attenuationCoeff * linearDepth);
+
     linearDepth = linearDepth / farPlane;
 
     if (!(linearDepth > 1)) {
