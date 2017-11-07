@@ -105,8 +105,8 @@ void loadTextures(osg::ref_ptr<osg::Group> root, TextureImages textureId) {
             throw std::invalid_argument("Texture image parameter does not match a known enum value");
     }
 
-    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_d.jpg");
-    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_n.jpg");
+    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_d.png");
+    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_n.png");
     BOOST_CHECK( (!diffuseImage || !normalImage) == false );
 
     // texture properties
