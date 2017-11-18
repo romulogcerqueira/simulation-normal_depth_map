@@ -20,8 +20,9 @@ void main() {
 
     // Normal for textured scenes (by normal mapping)
     if (textureSize(normalTexture, 0).x > 1) {
-        vec3 modifiedNormal = (texture2D(normalTexture, gl_TexCoord[0].st).rgb * 2.0 - 1.0) * TBN;
-        normNormal = normalize(modifiedNormal);
+        vec3 normalRGB = texture2D(normalTexture, gl_TexCoord[0].xy).rgb;
+        vec3 normalMap = (normalRGB * 2.0 - 1.0) * TBN;
+        normNormal = normalize(normalMap);
     }
 
     // Normal for untextured scenes
