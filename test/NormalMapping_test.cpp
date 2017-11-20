@@ -105,8 +105,8 @@ void loadTextures(osg::ref_ptr<osg::Group> root, TextureImages textureId) {
             throw std::invalid_argument("Texture image parameter does not match a known enum value");
     }
 
-    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_d.jpg");
-    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_n.jpg");
+    osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_d.png");
+    osg::ref_ptr<osg::Image> normalImage = osgDB::readImageFile(current_path + "/textures/" + texture_type + "_n.png");
     BOOST_CHECK( (!diffuseImage || !normalImage) == false );
 
     // texture properties
@@ -154,35 +154,31 @@ osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
-    normalGroundTruth.at<float>(0,0) = 0.03529;
-    normalGroundTruth.at<float>(1,0) = 0.0549;
-    normalGroundTruth.at<float>(2,0) = 0.2196;
-    normalGroundTruth.at<float>(3,0) = 0.34901;
-    normalGroundTruth.at<float>(4,0) = 0.43137;
-
-    normalGroundTruth.at<float>(0,1) = 0.04313;
-    normalGroundTruth.at<float>(1,1) = 0.1647;
-    normalGroundTruth.at<float>(2,1) = 0.29803;
-    normalGroundTruth.at<float>(3,1) = 0.43921;
-    normalGroundTruth.at<float>(4,1) = 0.51372;
-
-    normalGroundTruth.at<float>(0,2) = 0.17254;
-    normalGroundTruth.at<float>(1,2) = 0.23529;
-    normalGroundTruth.at<float>(2,2) = 0.37254;
-    normalGroundTruth.at<float>(3,2) = 0.53333;
-    normalGroundTruth.at<float>(4,2) = 0.55686;
-
-    normalGroundTruth.at<float>(0,3) = 0.21176;
-    normalGroundTruth.at<float>(1,3) = 0.24313;
-    normalGroundTruth.at<float>(2,3) = 0.44705;
-    normalGroundTruth.at<float>(3,3) = 0.52549;
-    normalGroundTruth.at<float>(4,3) = 0.52941;
-
-    normalGroundTruth.at<float>(0,4) = 0.23529;
-    normalGroundTruth.at<float>(1,4) = 0.3098;
-    normalGroundTruth.at<float>(2,4) = 0.36078;
-    normalGroundTruth.at<float>(3,4) = 0.39607;
-    normalGroundTruth.at<float>(4,4) = 0.41176;
+    normalGroundTruth.at<float>(0,0) = 0.78039;
+    normalGroundTruth.at<float>(1,0) = 0.85490;
+    normalGroundTruth.at<float>(2,0) = 0.85490;
+    normalGroundTruth.at<float>(3,0) = 0.89411;
+    normalGroundTruth.at<float>(4,0) = 0.92941;
+    normalGroundTruth.at<float>(0,1) = 0.87843;
+    normalGroundTruth.at<float>(1,1) = 0.92156;
+    normalGroundTruth.at<float>(2,1) = 0.92156;
+    normalGroundTruth.at<float>(3,1) = 0.93333;
+    normalGroundTruth.at<float>(4,1) = 0.92156;
+    normalGroundTruth.at<float>(0,2) = 0.96078;
+    normalGroundTruth.at<float>(1,2) = 0.97647;
+    normalGroundTruth.at<float>(2,2) = 0.96470;
+    normalGroundTruth.at<float>(3,2) = 0.88627;
+    normalGroundTruth.at<float>(4,2) = 0.89803;
+    normalGroundTruth.at<float>(0,3) = 0.98823;
+    normalGroundTruth.at<float>(1,3) = 0.98431;
+    normalGroundTruth.at<float>(2,3) = 0.93333;
+    normalGroundTruth.at<float>(3,3) = 0.86666;
+    normalGroundTruth.at<float>(4,3) = 0.90980;
+    normalGroundTruth.at<float>(0,4) = 0.98823;
+    normalGroundTruth.at<float>(1,4) = 0.96470;
+    normalGroundTruth.at<float>(2,4) = 0.87058;
+    normalGroundTruth.at<float>(3,4) = 0.83137;
+    normalGroundTruth.at<float>(4,4) = 0.95686;
 
     return normalGroundTruth;
 }
