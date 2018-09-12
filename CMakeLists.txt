@@ -1,10 +1,17 @@
-# CMakeLists.txt has to be located in the project folder and cmake has to be
-# executed from 'project/build' with 'cmake ../'.
-cmake_minimum_required(VERSION 2.6)
-find_package(Rock)
+cmake_minimum_required(VERSION 3.0)
+project(normal_depth_map)
 
-rock_init(normal_depth_map 0.1)
-rock_standard_layout()
+## DEFINE MAIN PATHS
+set(bin_path ${PROJECT_BINARY_DIR}/bin)
+set(source_path ${PROJECT_SOURCE_DIR}/src)
+set(resources_path ${PROJECT_SOURCE_DIR}/resources)
+set(test_path ${PROJECT_SOURCE_DIR}/test)
 
-install(DIRECTORY resources/shaders/
-    DESTINATION share/normal_depth_map/shaders)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${bin_path})
+
+include_directories(${source_path})
+add_subdirectory(${source_path})
+
+# Add test cases
+enable_testing()
+add_subdirectory(${test_path})

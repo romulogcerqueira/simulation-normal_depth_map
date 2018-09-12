@@ -93,6 +93,7 @@ private:
                               float attenuationCoefficient = 0,
                               bool drawDepth = true,
                               bool drawNormal = true);
+    
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
 };
 }

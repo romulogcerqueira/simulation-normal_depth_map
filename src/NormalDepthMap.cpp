@@ -16,10 +16,12 @@
 #include <osg/Uniform>
 #include <osgDB/FileUtils>
 
+#include <Definitions.hpp>
+
 namespace normal_depth_map {
 
-#define SHADER_PATH_FRAG "normal_depth_map/shaders/normalDepthMap.frag"
-#define SHADER_PATH_VERT "normal_depth_map/shaders/normalDepthMap.vert"
+#define SHADER_FRAG "shaders/normalDepthMap.frag"
+#define SHADER_VERT "shaders/normalDepthMap.vert"
 
 NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle) {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle);
@@ -108,8 +110,14 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
     osg::ref_ptr<osg::Group> localRoot = new osg::Group();
     osg::ref_ptr<osg::Program> program(new osg::Program());
 
-    osg::ref_ptr<osg::Shader> shaderVertex = osg::Shader::readShaderFile(osg::Shader::VERTEX, osgDB::findDataFile(SHADER_PATH_VERT));
-    osg::ref_ptr<osg::Shader> shaderFragment = osg::Shader::readShaderFile(osg::Shader::FRAGMENT, osgDB::findDataFile(SHADER_PATH_FRAG));
+    std::string vert_path = std::string(RESOURCE_PATH)
+                          + std::string(SHADER_VERT);
+
+    std::string frag_path = std::string(RESOURCE_PATH)
+                          + std::string(SHADER_FRAG);
+
+    osg::ref_ptr<osg::Shader> shaderVertex = osg::Shader::readShaderFile(osg::Shader::VERTEX, vert_path);
+    osg::ref_ptr<osg::Shader> shaderFragment = osg::Shader::readShaderFile(osg::Shader::FRAGMENT, frag_path);
     program->addShader(shaderFragment);
     program->addShader(shaderVertex);
 
