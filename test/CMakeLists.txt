@@ -1,24 +1,22 @@
-rock_testsuite(NormalDepthMap_core NormalDepthMap_test.cpp TestHelper.cpp
-    DEPS normal_depth_map
-    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS_PKGCONFIG opencv)
+find_package(OpenCV REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-rock_testsuite(ImageViewerCaptureTool_core ImageViewerCaptureTool_test.cpp
-    DEPS normal_depth_map
-    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS_PKGCONFIG opencv)
+add_library(test_tools SHARED TestHelper.cpp)
+set(test_libs test_tools ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
-rock_testsuite(NormalMapping_core NormalMapping_test.cpp TestHelper.cpp
-    DEPS normal_depth_map
-    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS_PKGCONFIG opencv)
+file(GLOB test_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *test.cpp)
 
-rock_testsuite(MaterialProperties_core MaterialProperties_test.cpp TestHelper.cpp
-    DEPS normal_depth_map
-    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS_PKGCONFIG opencv)
+foreach(test_src ${test_files})
+        get_filename_component(test_name ${test_src} NAME_WE)
 
-rock_testsuite(Attenuation_core Attenuation_test.cpp TestHelper.cpp
-    DEPS normal_depth_map
-    LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
-    DEPS_PKGCONFIG opencv)
+        add_executable(${test_name} ${test_src})
+        target_link_libraries(${test_name} ${test_libs}
+                                        ${source_libs})
+
+        set_target_properties(${test_name} PROPERTIES 
+                 RUNTIME_OUTPUT_DIRECTORY ${bin_path}/testbin)
+
+        add_test(NAME ${test_name} 
+                WORKING_DIRECTORY ${bin_path}/testbin 
+                COMMAND ${bin_path}/testbin/${test_name})
+endforeach(test_src)

@@ -1,12 +1,13 @@
-// C++ includes
+#define BOOST_TEST_MODULE "Attenuation_test"
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/test_tools.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <iostream>
 
-// Rock includes
-#include <normal_depth_map/Tools.hpp>
+#include <Tools.hpp>
 #include "TestHelper.hpp"
-
-#define BOOST_TEST_MODULE "Attenuation_test"
-#include <boost/test/unit_test.hpp>
 
 using namespace normal_depth_map;
 using namespace test_helper;
@@ -143,14 +144,6 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
         cv::extractChannel(attShader(roi), localPoints, 0);
         roundMat(localPoints, 4);
         BOOST_CHECK(areEquals(localPoints, referencePoints[i]) == true);
-
-        // output
-        cv::Mat compShader, compSonar;
-        cv::hconcat(rawShader, attShader, compShader);
-        cv::hconcat(rawSonar, attSonar, compSonar);
-        cv::imshow("shader images", compShader);
-        cv::imshow("sonar images", compSonar);
-        cv::waitKey();
     }
 }
 

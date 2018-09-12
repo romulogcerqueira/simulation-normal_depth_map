@@ -1,19 +1,19 @@
-// C++ includes
+#define BOOST_TEST_MODULE "NormalDepthMap_test"
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/test_tools.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <iostream>
 
-// Rock includes
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
-#include <normal_depth_map/NormalDepthMap.hpp>
-#include "TestHelper.hpp"
-
-// OSG includes
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 
-#define BOOST_TEST_MODULE "NormalDepthMap_test"
-#include <boost/test/unit_test.hpp>
+#include <ImageViewerCaptureTool.hpp>
+#include <NormalDepthMap.hpp>
+#include "TestHelper.hpp"
 
 using namespace normal_depth_map;
 using namespace test_helper;
@@ -120,10 +120,17 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     makeDemoScene(root);
 
-    // uint precision = 1000;
     for (uint i = 0; i < eyes.size(); i++) {
         // compute and display the final shader and sonar images
-        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
+        cv::Mat rawShader = computeNormalDepthMap(root,
+                                    maxRange,
+                                    fovX,
+                                    fovY, 
+                                    0, 
+                                    eyes[i], 
+                                    centers[i], 
+                                    ups[i]);
+
         cv::Mat rawSonar  = drawSonarImage(rawShader, maxRange, fovX * 0.5);
         cv::imshow("shader image", rawShader);
         cv::imshow("sonar image", rawSonar);

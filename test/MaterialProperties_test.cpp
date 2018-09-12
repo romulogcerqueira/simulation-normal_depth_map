@@ -1,13 +1,14 @@
 #define BOOST_TEST_MODULE "Material_test"
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/test_tools.hpp>
 #include <boost/test/unit_test.hpp>
 
-// OpenSceneGraph includes
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ShapeDrawable>
 
-// Rock includes
-#include <normal_depth_map/Tools.hpp>
+#include <Tools.hpp>
 #include "TestHelper.hpp"
 
 using namespace normal_depth_map;

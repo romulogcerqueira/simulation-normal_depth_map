@@ -1,22 +1,30 @@
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
-
 #define BOOST_TEST_MODULE "ImageViewerCaptureTool_test"
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/test_tools.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
+
+#include <ImageViewerCaptureTool.hpp>
 
 using namespace normal_depth_map;
 
 BOOST_AUTO_TEST_SUITE(test_ImageViewerCaptureTool)
 
 // dataset function
-void viewPointsFromScene(osg::ref_ptr<osg::Geode> scene, std::vector<osg::Vec3d>* eyes, std::vector<osg::Vec3d>* centers, std::vector<osg::Vec3d>* ups, std::vector<osg::Vec4d>* backgrounds,
-        std::vector<std::vector<cv::Point> > *setPoints, std::vector<std::vector<cv::Point3i> > *setValues) {
+void viewPointsFromScene(osg::ref_ptr<osg::Geode> scene,
+                         std::vector<osg::Vec3d>* eyes, 
+                         std::vector<osg::Vec3d>* centers, 
+                         std::vector<osg::Vec3d>* ups, 
+                         std::vector<osg::Vec4d>* backgrounds,
+                         std::vector<std::vector<cv::Point> > *setPoints, 
+                         std::vector<std::vector<cv::Point3i> > *setValues) {
 
     // draw a small Sphere
     osg::ref_ptr<osg::Shape> sphere = new osg::Sphere(osg::Vec3(), 1);
@@ -73,7 +81,8 @@ BOOST_AUTO_TEST_CASE(ImageViewerCaptureTool_TestCase) {
     std::vector<std::vector<cv::Point> > setPoints;
     std::vector<std::vector<cv::Point3i> > setValues;
 
-    viewPointsFromScene(scene, &eyes, &centers, &ups, &backgrounds, &setPoints, &setValues);
+    viewPointsFromScene( scene, &eyes, &centers, &ups,
+                         &backgrounds, &setPoints, &setValues);
     ImageViewerCaptureTool capture(500, 500);
     uint precision = 1000;
 
@@ -81,13 +90,17 @@ BOOST_AUTO_TEST_CASE(ImageViewerCaptureTool_TestCase) {
         capture.setBackgroundColor(backgrounds[i]);
         capture.setCameraPosition(eyes[i], centers[i], ups[i]);
         osg::ref_ptr<osg::Image> osgImage = capture.grabImage(scene);
-        cv::Mat3f img, cvImgBuf(osgImage->t(), osgImage->s());
-        cvImgBuf.data = osgImage->data();
-        cv::cvtColor(cvImgBuf, img, cv::COLOR_RGB2BGR, CV_32FC3);
-        cv::flip(img, img, 0);
+        
+        cv::Mat3f cv_img(osgImage->t(), osgImage->s());
+        cv_img.data = osgImage->data();
+        cv::cvtColor(cv_img, cv_img, cv::COLOR_RGB2BGR);
+        cv::flip(cv_img, cv_img, 0);
+        
         for (uint j = 0; j < setPoints[i].size(); ++j) {
             cv::Point p = setPoints[i][j];
-            cv::Point3i imgValue(img[p.y][p.x][0] * precision, img[p.y][p.x][1] * precision, img[p.y][p.x][2] * precision);
+            cv::Point3i imgValue(cv_img[p.y][p.x][0] * precision, 
+                                 cv_img[p.y][p.x][1] * precision, 
+                                 cv_img[p.y][p.x][2] * precision);
             BOOST_CHECK_EQUAL(imgValue, setValues[i][j]);
         }
     }
@@ -117,7 +130,8 @@ BOOST_AUTO_TEST_CASE(testImageCaptureDefineFoV_TestCase) {
     uint gtWidth[] = { 400, 759, 500, 607, 232, 17, 13, 1077 };
 
     for (uint j = 0; j < sizeVector; ++j) {
-        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0, fovxs[j] * M_PI / 180.0, heightSize[j]);
+        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0,
+                                       fovxs[j] * M_PI / 180.0, heightSize[j]);
         osg::ref_ptr<osg::Image> osgImage = capture.grabImage(scene);
         BOOST_CHECK_EQUAL(osgImage->s(), gtWidth[j]);
     }

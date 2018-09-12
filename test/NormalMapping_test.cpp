@@ -1,7 +1,11 @@
 #define BOOST_TEST_MODULE "NormalMapping_test"
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/test_tools.hpp>
 #include <boost/test/unit_test.hpp>
 
-// OpenSceneGraph includes
+#include <iostream>
+
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/Image>
@@ -10,13 +14,9 @@
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 
-// Rock includes
-#include <normal_depth_map/NormalDepthMap.hpp>
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
+#include <NormalDepthMap.hpp>
+#include <ImageViewerCaptureTool.hpp>
 #include "TestHelper.hpp"
-
-// C++ includes
-#include <iostream>
 
 using namespace normal_depth_map;
 using namespace test_helper;
@@ -208,28 +208,28 @@ BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     BOOST_CHECK(areEquals(rawChannels[1], normalChannels[1]) == true);
 
     // plot sonar sample output
-    cv::Mat compShader, compSonar;
-    cv::hconcat(rawShader, normalShader, compShader);
-    cv::hconcat(rawSonar, normalSonar, compSonar);
-    cv::imshow("shader images - single object", compShader);
-    cv::imshow("sonar images - single object", compSonar);
-    cv::waitKey();
+    // cv::Mat compShader, compSonar;
+    // cv::hconcat(rawShader, normalShader, compShader);
+    // cv::hconcat(rawSonar, normalSonar, compSonar);
+    // cv::imshow("shader images - single object", compShader);
+    // cv::imshow("sonar images - single object", compSonar);
+    // cv::waitKey();
 }
 
-BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
-    float maxRange = 25.0f;
-    float fovX = M_PI / 4;  // 45 degrees
-    float fovY = M_PI / 4;  // 45 degrees
+// BOOST_AUTO_TEST_CASE(multiTextureScene_TestCase) {
+//     float maxRange = 25.0f;
+//     float fovX = M_PI / 4;  // 45 degrees
+//     float fovY = M_PI / 4;  // 45 degrees
 
-    osg::ref_ptr<osg::Group> normalRoot = createNormalMapMultiScene();
-    cv::Mat normalShader = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
-    cv::Mat normalSonar  = drawSonarImage(normalShader, maxRange, fovX * 0.5);
+//     osg::ref_ptr<osg::Group> normalRoot = createNormalMapMultiScene();
+//     cv::Mat normalShader = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
+//     cv::Mat normalSonar  = drawSonarImage(normalShader, maxRange, fovX * 0.5);
 
-    // plot sonar sample output
-    cv::imshow("shader image - multi object", normalShader);
-    cv::imshow("sonar image - multi object", normalSonar);
-    cv::waitKey();
-}
+//     // plot sonar sample output
+//     cv::imshow("shader image - multi object", normalShader);
+//     cv::imshow("sonar image - multi object", normalSonar);
+//     cv::waitKey();
+// }
 
 BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
     float maxRange = 20.0f;
@@ -238,13 +238,13 @@ BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
 
     osg::ref_ptr<osg::Group> normalRoot = createNormalMapSimpleScene();
     cv::Mat cvNormal = computeNormalDepthMap(normalRoot, maxRange, fovX, fovY);
-
+    
     cv::Mat normalRoi;
     cv::extractChannel(cvNormal(cv::Rect(160,175,5,5)), normalRoi, 0);
     roundMat(normalRoi, 5);
     cv::Mat normalGroundTruth = getNormalGroundTruth();
-
-    BOOST_CHECK(areEquals(normalRoi, normalGroundTruth) == true);
+    
+    BOOST_CHECK(areEquals(normalRoi.t(), normalGroundTruth) ==  true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

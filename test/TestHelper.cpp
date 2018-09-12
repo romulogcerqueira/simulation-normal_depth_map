@@ -1,11 +1,12 @@
 #include "TestHelper.hpp"
+
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 
-#include <normal_depth_map/ImageViewerCaptureTool.hpp>
-#include <normal_depth_map/NormalDepthMap.hpp>
+#include <ImageViewerCaptureTool.hpp>
+#include <NormalDepthMap.hpp>
 
 using namespace normal_depth_map;
 
@@ -69,7 +70,6 @@ cv::Mat test_helper::computeNormalDepthMap(  osg::ref_ptr<osg::Group> root,
     cv::merge(channels, cvImage);
     cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
     cv::flip(cvImage, cvImage, 0);
-
     return cvImage.clone();
 }
 
