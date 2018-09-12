@@ -11,7 +11,10 @@
 using namespace normal_depth_map;
 
 // simple sonar plot
-cv::Mat test_helper::drawSonarImage(cv::Mat3f image, double maxRange, double maxAngleX) {
+cv::Mat test_helper::drawSonarImage(cv::Mat3f image,
+                                    double maxRange,
+                                    double maxAngleX) {
+
     cv::Mat1b imagePlot = cv::Mat1b::zeros(500, 500);
     cv::Point2f centerPlot(imagePlot.cols / 2, 0);
     double factor = imagePlot.rows / maxRange;
@@ -24,18 +27,25 @@ cv::Mat test_helper::drawSonarImage(cv::Mat3f image, double maxRange, double max
 
             cv::Point2f tempPoint(distance * sin(alpha), distance * cos(alpha));
             tempPoint = tempPoint * factor + centerPlot;
-            imagePlot[(uint) tempPoint.y][(uint) tempPoint.x] = 255 * image[j][i][0];
+            imagePlot[(uint) tempPoint.y][(uint) tempPoint.x] = 255
+                                                               * image[j][i][0];
         }
     }
 
     cv::Mat imagePlotMap;
     cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
 
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+    cv::line( imagePlotMap,
+              centerPlot,
+              cv::Point2f(maxRange * sin(maxAngleX) * factor,
+              maxRange * cos(maxAngleX) * factor) + centerPlot,
+              cv::Scalar(255), 1, CV_AA);
 
-    cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+    cv::line( imagePlotMap,
+              centerPlot, 
+              cv::Point2f(maxRange * sin(-maxAngleX) * factor,
+              maxRange * cos(maxAngleX) * factor) + centerPlot,
+              cv::Scalar(255), 1, CV_AA);
     return imagePlotMap;
 }
 
@@ -51,17 +61,21 @@ cv::Mat test_helper::computeNormalDepthMap(  osg::ref_ptr<osg::Group> root,
                                         uint height
                                     ) {
     // normal depth map
-    NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5, attenuationCoeff);
+    NormalDepthMap normalDepthMap(maxRange, fovX * 0.5, fovY * 0.5,
+                                  attenuationCoeff);
     ImageViewerCaptureTool capture(fovY, fovX, height);
     capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
     capture.setCameraPosition(eye, center, up);
     normalDepthMap.addNodeChild(root);
 
     // grab scene
-    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(
+                                        normalDepthMap.getNormalDepthMapNode());
     osg::ref_ptr<osg::Image> osgDepth = capture.getDepthBuffer();
-    cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
-    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(), CV_32FC1, osgDepth->data());
+    cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(),
+                                                    CV_32FC3, osgImage->data());
+    cv::Mat cvDepth = cv::Mat(osgDepth->t(), osgDepth->s(),
+                                                    CV_32FC1, osgDepth->data());
     cvDepth = cvDepth.mul( cv::Mat1f(cvDepth < 1) / 255);
 
     std::vector<cv::Mat> channels;
@@ -77,7 +91,8 @@ void test_helper::roundMat(cv::Mat& roi, int precision) {
     if(precision < 0) return;
     for (int x = 0; x < roi.cols; x++) {
         for (int y = 0; y < roi.rows; y++) {
-            float value = (float) ((int) (roi.at<float>(x,y) * pow(10, precision)) / pow(10,precision));
+            float value = (float) ((int) (roi.at<float>(x,y)
+                                     * pow(10, precision)) / pow(10,precision));
             roi.at<float>(x,y) = value;
         }
     }
@@ -89,22 +104,26 @@ bool test_helper::areEquals (const cv::Mat& image1, const cv::Mat& image2) {
     return (cv::countNonZero(diff) == 0);
 }
 
-// draw the scene with a small ball in the center with a big cube, cylinder and cone in back
+// draw the scene with a small ball in the center with a big cube, cylinder
+// and cone in back
 void test_helper::makeDemoScene(osg::ref_ptr<osg::Group> root) {
     osg::Geode *sphere = new osg::Geode();
     sphere->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(), 1)));
     root->addChild(sphere);
 
     osg::Geode *cylinder = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(30, 0, 10), 10, 10)));
+    cylinder->addDrawable(new osg::ShapeDrawable(
+                              new osg::Cylinder(osg::Vec3(30, 0, 10), 10, 10)));
     root->addChild(cylinder);
 
     osg::Geode *cone = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 30, 0), 10, 10)));
+    cylinder->addDrawable(new osg::ShapeDrawable(
+                                   new osg::Cone(osg::Vec3(0, 30, 0), 10, 10)));
     root->addChild(cone);
 
     osg::Geode *box = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, -30, -10), 10)));
+    cylinder->addDrawable(new osg::ShapeDrawable(
+                                     new osg::Box(osg::Vec3(0, -30, -10), 10)));
     root->addChild(box);
 }
 

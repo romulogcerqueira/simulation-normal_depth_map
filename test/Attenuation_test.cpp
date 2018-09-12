@@ -21,7 +21,11 @@ BOOST_AUTO_TEST_CASE(attenuationCalculation_testCase){
     double salinity = 35;       // ppt
     double acidity = 8.1;       // pH
 
-    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
+    double attenuationCoeff = underwaterSignalAttenuation(frequency,
+                                                          temperature, 
+                                                          depth, 
+                                                          salinity, 
+                                                          acidity);
     BOOST_CHECK_CLOSE(attenuationCoeff, 0.0247, 3);
 }
 
@@ -116,7 +120,11 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     double depth = 1;               // meters
     double salinity = 0;            // ppt
     double acidity = 8;             // pH
-    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
+    double attenuationCoeff = underwaterSignalAttenuation(frequency, 
+                                                          temperature, 
+                                                          depth, 
+                                                          salinity, 
+                                                          acidity);
 
      // define the different camera point of views
     std::vector<osg::Vec3d> eyes, centers, ups;
@@ -133,10 +141,14 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
 
     // display the same scene with and without underwater acoustic attenuation
     for (uint i = 0; i < eyes.size(); ++i) {
-        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
+        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY,
+                                                  0, eyes[i], centers[i],
+                                                  ups[i]);
         cv::Mat rawSonar  = drawSonarImage(rawShader, maxRange, fovX * 0.5);
 
-        cv::Mat attShader = computeNormalDepthMap(root, maxRange, fovX, fovY, attenuationCoeff, eyes[i], centers[i], ups[i]);
+        cv::Mat attShader = computeNormalDepthMap(root, maxRange, fovX, fovY,
+                                                  attenuationCoeff, eyes[i],
+                                                  centers[i], ups[i]);
         cv::Mat attSonar  = drawSonarImage(attShader, maxRange, fovX * 0.5);
 
         // check with reference points

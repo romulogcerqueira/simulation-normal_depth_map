@@ -131,11 +131,6 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
                                     centers[i], 
                                     ups[i]);
 
-        cv::Mat rawSonar  = drawSonarImage(rawShader, maxRange, fovX * 0.5);
-        cv::imshow("shader image", rawShader);
-        cv::imshow("sonar image", rawSonar);
-        cv::waitKey();
-
         // start check process
         cv::Mat normalMap, depthMap;
         cv::extractChannel(rawShader, normalMap, 0);
@@ -145,10 +140,12 @@ BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
             cv::Point p = setPoints[i][j];
 
             // check normal values
-            BOOST_CHECK_CLOSE(normalMap.at<float>(p.y,p.x), setValues[i][j].x, 2);
+            BOOST_CHECK_CLOSE(normalMap.at<float>(p.y,p.x),
+                              setValues[i][j].x, 2);
 
             // check depth values
-            BOOST_CHECK_CLOSE(depthMap.at<float>(p.y,p.x), setValues[i][j].y, 2);
+            BOOST_CHECK_CLOSE(depthMap.at<float>(p.y,p.x),
+                              setValues[i][j].y, 2);
         }
     }
 }
@@ -167,9 +164,12 @@ void checkDepthValueRadialVariation(cv::Mat3f image, uint id) {
         8745, 0, 0, 0, 0, 0, 0};
 
     std::vector<std::vector<int> > groundTruthVector(3);
-    groundTruthVector[0] = std::vector<int>(groudTruth0, groudTruth0 + sizeof(groudTruth0) / sizeof(int));
-    groundTruthVector[1] = std::vector<int>(groudTruth1, groudTruth1 + sizeof(groudTruth1) / sizeof(int));
-    groundTruthVector[2] = std::vector<int>(groudTruth2, groudTruth2 + sizeof(groudTruth2) / sizeof(int));
+    groundTruthVector[0] = std::vector<int>(groudTruth0,
+                            groudTruth0 + sizeof(groudTruth0) / sizeof(int));
+    groundTruthVector[1] = std::vector<int>(groudTruth1,
+                            groudTruth1 + sizeof(groudTruth1) / sizeof(int));
+    groundTruthVector[2] = std::vector<int>(groudTruth2,
+                            groudTruth2 + sizeof(groudTruth2) / sizeof(int));
 
     cv::Point centerPoint(image.size().width / 2, image.size().height / 2);
     std::vector<int> histSizes;
@@ -212,14 +212,17 @@ BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
     uint heightSize[] = {500, 500, 500};
 
     for (uint j = 0; j < sizeVector; ++j) {
-        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0, fovxs[j] * M_PI / 180.0, heightSize[j]);
+        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0,
+                                       fovxs[j] * M_PI / 180.0,
+                                       heightSize[j]);
         capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
-        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+        osg::ref_ptr<osg::Image> osgImage = capture.grabImage(
+                                        normalDepthMap.getNormalDepthMapNode());
 
         cv::Mat3f cvImage(osgImage->t(), osgImage->s());
         cvImage.data = osgImage->data();
         cvImage = cvImage.clone();
-        cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR, CV_32FC3);
+        cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);
         cv::flip(cvImage, cvImage, 0);
         checkDepthValueRadialVariation(cvImage, j);
     }

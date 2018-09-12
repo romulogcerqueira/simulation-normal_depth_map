@@ -16,10 +16,15 @@ using namespace test_helper;
 
 BOOST_AUTO_TEST_SUITE(MaterialProperties)
 
-// insert a sphere in the scene with desired position, radius and reflectance properties
-void addSimpleObject(osg::ref_ptr<osg::Group> root, osg::Vec3 position, float radius, float reflectance) {
+// insert a sphere in the scene with desired position, radius and
+// reflectance properties
+void addSimpleObject(osg::ref_ptr<osg::Group> root,
+                     osg::Vec3 position, 
+                     float radius,
+                     float reflectance) {
     // create the drawable
-    osg::ref_ptr<osg::Drawable> drawable = new osg::ShapeDrawable(new osg::Sphere(position, radius));
+    osg::ref_ptr<osg::Drawable> drawable = new osg::ShapeDrawable(
+                                            new osg::Sphere(position, radius));
 
     // create the stateset and add the uniform
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
@@ -74,16 +79,6 @@ BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     BOOST_CHECK(areEquals(channels2[0], channels3[0]) == false);
     BOOST_CHECK(areEquals(channels2[0], channels4[0]) == false);
     BOOST_CHECK(areEquals(channels3[0], channels4[0]) == false);
-
-    // output
-    cv::Mat output1, output2, output;
-    cv::hconcat(scene1, scene2, output1);
-    cv::hconcat(scene3, scene4, output2);
-    cv::vconcat(output1, output2, output);
-    cv::resize(output, output, cv::Size(output.rows / 2, output.cols / 2));
-
-    cv::imshow("singleobject material test", output);
-    cv::waitKey();
 }
 
 BOOST_AUTO_TEST_CASE(objectsDifferentMaterials_testCase) {
@@ -99,10 +94,6 @@ BOOST_AUTO_TEST_CASE(objectsDifferentMaterials_testCase) {
 
     // normal depth map
     cv::Mat scene = computeNormalDepthMap(root, maxRange, fovX, fovY);
-
-    // output
-    cv::imshow("multiobject material test", scene);
-    cv::waitKey();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
