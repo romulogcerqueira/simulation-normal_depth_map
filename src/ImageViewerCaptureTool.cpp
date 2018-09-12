@@ -24,21 +24,27 @@ ImageViewerCaptureTool::ImageViewerCaptureTool( double fovY, double fovX,
     double aspectRatio = width * 1.0 / height;
 
     initializeProperties(width, height);
-    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY * 180.0 / M_PI, aspectRatio, 0.1, 1000);
+    _viewer->getCamera()->setComputeNearFarMode(
+                                    osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY * 180.0 / M_PI,
+                                                           aspectRatio,
+                                                           0.1,
+                                                           1000);
 }
 
 void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
     _viewer = new osgViewer::Viewer;
 
-    osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
+    osg::ref_ptr<osg::GraphicsContext::Traits> traits =
+                                              new osg::GraphicsContext::Traits;
     traits->width = width;
     traits->height = height;
     traits->pbuffer = true;
     traits->readDISPLAY();
 
     osg::ref_ptr<osg::Camera> camera = this->_viewer->getCamera();
-    osg::ref_ptr<osg::GraphicsContext> gfxc = osg::GraphicsContext::createGraphicsContext(traits.get());
+    osg::ref_ptr<osg::GraphicsContext> gfxc =
+                      osg::GraphicsContext::createGraphicsContext(traits.get());
     camera->setGraphicsContext(gfxc);
     camera->setDrawBuffer(GL_FRONT);
     camera->setViewport(new osg::Viewport(0, 0, width, height));
@@ -48,7 +54,8 @@ void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
     camera->setFinalDrawCallback(_capture);
 }
 
-osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(osg::ref_ptr<osg::Node> node) {
+osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(
+                                                osg::ref_ptr<osg::Node> node) {
     // set the current root node
     _viewer->setSceneData(node);
 
@@ -108,7 +115,8 @@ WindowCaptureScreen::WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gc) 
 
         // allocates the image memory space
         _image->allocateImage(width, height, 1, pixelFormat, GL_FLOAT);
-        _depth_buffer->allocateImage(width, height, 1,  GL_DEPTH_COMPONENT, GL_FLOAT);
+        _depth_buffer->allocateImage(width, height, 1, GL_DEPTH_COMPONENT,
+                                                       GL_FLOAT);
     }
 }
 
@@ -129,11 +137,14 @@ osg::ref_ptr<osg::Image> WindowCaptureScreen::getDepthBuffer() {
 
 
 void WindowCaptureScreen::operator ()(osg::RenderInfo& renderInfo) const {
-    osg::ref_ptr<osg::GraphicsContext> gc = renderInfo.getState()->getGraphicsContext();
+    osg::ref_ptr<osg::GraphicsContext> gc = renderInfo.getState()
+                                                        ->getGraphicsContext();
     if (gc->getTraits()) {
         _mutex->lock();
-        _image->readPixels( 0, 0, _image->s(), _image->t(), _image->getPixelFormat(), GL_FLOAT);
-        _depth_buffer->readPixels(0, 0, _image->s(), _image->t(), _depth_buffer->getPixelFormat(), GL_FLOAT);
+        _image->readPixels( 0, 0, _image->s(), _image->t(),
+                                            _image->getPixelFormat(), GL_FLOAT);
+        _depth_buffer->readPixels(0, 0, _image->s(), _image->t(),
+                                     _depth_buffer->getPixelFormat(), GL_FLOAT);
 
         //grants the access to image
         _condition->signal();

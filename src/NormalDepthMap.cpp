@@ -23,12 +23,24 @@ namespace normal_depth_map {
 #define SHADER_FRAG "shaders/normalDepthMap.frag"
 #define SHADER_VERT "shaders/normalDepthMap.vert"
 
-NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle) {
-    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle);
+NormalDepthMap::NormalDepthMap(float maxRange,
+                               float maxHorizontalAngle,
+                               float maxVerticalAngle) {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(
+                                    maxRange,
+                                    maxHorizontalAngle,
+                                    maxVerticalAngle);
 }
 
-NormalDepthMap::NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, float attenuationCoeff) {
-    _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange, maxHorizontalAngle, maxVerticalAngle, attenuationCoeff);
+NormalDepthMap::NormalDepthMap(float maxRange,
+                               float maxHorizontalAngle,
+                               float maxVerticalAngle,
+                               float attenuationCoeff) {
+    _normalDepthMapNode = createTheNormalDepthMapShaderNode(
+                                        maxRange,
+                                        maxHorizontalAngle,
+                                        maxVerticalAngle,
+                                        attenuationCoeff);
 }
 
 NormalDepthMap::NormalDepthMap() {
@@ -36,62 +48,78 @@ NormalDepthMap::NormalDepthMap() {
 }
 
 void NormalDepthMap::setMaxRange(float maxRange) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("farPlane")->set(maxRange);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("farPlane")->set(maxRange);
 }
 
 float NormalDepthMap::getMaxRange() {
     float maxRange = 0;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("farPlane")->get(maxRange);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("farPlane")->get(maxRange);
     return maxRange;
 }
 
 void NormalDepthMap::setMaxHorizontalAngle(float maxHorizontalAngle) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitHorizontalAngle")->set(maxHorizontalAngle);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("limitHorizontalAngle")
+                       ->set(maxHorizontalAngle);
 }
 
 float NormalDepthMap::getMaxHorizontalAngle() {
     float maxHorizontalAngle = 0;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitHorizontalAngle")->get(maxHorizontalAngle);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("limitHorizontalAngle")
+                       ->get(maxHorizontalAngle);
     return maxHorizontalAngle;
 }
 
 void NormalDepthMap::setMaxVerticalAngle(float maxVerticalAngle) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitVerticalAngle")->set(maxVerticalAngle);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("limitVerticalAngle")
+                       ->set(maxVerticalAngle);
 }
 
 float NormalDepthMap::getMaxVerticalAngle() {
     float maxVerticalAngle = 0;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("limitVerticalAngle")->get(maxVerticalAngle);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("limitVerticalAngle")
+                       ->get(maxVerticalAngle);
     return maxVerticalAngle;
 }
 
 void NormalDepthMap::setAttenuationCoefficient(float coefficient) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->set(coefficient);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("attenuationCoeff")->set(coefficient);
 }
 
 float NormalDepthMap::getAttenuationCoefficient() {
     float coefficient = 0;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("attenuationCoeff")->get(coefficient);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("attenuationCoeff")->get(coefficient);
     return coefficient;
 }
 
 void NormalDepthMap::setDrawNormal(bool drawNormal) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->set(drawNormal);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawNormal")->set(drawNormal);
 }
 
 bool NormalDepthMap::isDrawNormal() {
     bool drawNormal;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawNormal")->get(drawNormal);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawNormal")->get(drawNormal);
     return drawNormal;
 }
 
 void NormalDepthMap::setDrawDepth(bool drawDepth) {
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawDepth")->set(drawDepth);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawDepth")->set(drawDepth);
 }
 
 bool NormalDepthMap::isDrawDepth() {
     bool drawDepth;
-    _normalDepthMapNode->getOrCreateStateSet()->getUniform("drawDepth")->get(drawDepth);
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawDepth")->get(drawDepth);
     return drawDepth;
 }
 
@@ -116,30 +144,24 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
     std::string frag_path = std::string(RESOURCE_PATH)
                           + std::string(SHADER_FRAG);
 
-    osg::ref_ptr<osg::Shader> shaderVertex = osg::Shader::readShaderFile(osg::Shader::VERTEX, vert_path);
-    osg::ref_ptr<osg::Shader> shaderFragment = osg::Shader::readShaderFile(osg::Shader::FRAGMENT, frag_path);
+    osg::ref_ptr<osg::Shader> shaderVertex = osg::Shader::readShaderFile(
+                                                        osg::Shader::VERTEX,
+                                                        vert_path);
+    osg::ref_ptr<osg::Shader> shaderFragment = osg::Shader::readShaderFile(
+                                                        osg::Shader::FRAGMENT,
+                                                        frag_path);
     program->addShader(shaderFragment);
     program->addShader(shaderVertex);
 
     osg::ref_ptr<osg::StateSet> ss = localRoot->getOrCreateStateSet();
     ss->setAttribute(program);
 
-    osg::ref_ptr<osg::Uniform> attenuationCoefficientUniform(new osg::Uniform("attenuationCoeff", attenuationCoefficient));
-    ss->addUniform(attenuationCoefficientUniform);
-
-    osg::ref_ptr<osg::Uniform> farPlaneUniform(new osg::Uniform("farPlane", maxRange));
-    ss->addUniform(farPlaneUniform);
-
-    osg::ref_ptr<osg::Uniform> maxHorizontalAngleUniform(new osg::Uniform("limitHorizontalAngle", maxHorizontalAngle));
-    ss->addUniform(maxHorizontalAngleUniform);
-
-    osg::ref_ptr<osg::Uniform> maxVerticalAngleUniform(new osg::Uniform("limitVerticalAngle", maxVerticalAngle));
-    ss->addUniform(maxVerticalAngleUniform);
-
-    osg::ref_ptr<osg::Uniform> drawNormalUniform(new osg::Uniform("drawNormal", drawNormal));
-    ss->addUniform(drawNormalUniform);
-    osg::ref_ptr<osg::Uniform> drawDepthUniform(new osg::Uniform("drawDepth", drawDepth));
-    ss->addUniform(drawDepthUniform);
+    ss->addUniform(new osg::Uniform("attenuationCoeff", attenuationCoefficient));
+    ss->addUniform(new osg::Uniform("farPlane", maxRange));
+    ss->addUniform(new osg::Uniform("limitHorizontalAngle", maxHorizontalAngle));
+    ss->addUniform(new osg::Uniform("limitVerticalAngle", maxVerticalAngle));
+    ss->addUniform(new osg::Uniform("drawNormal", drawNormal));
+    ss->addUniform(new osg::Uniform("drawDepth", drawDepth));
 
     return localRoot;
 }

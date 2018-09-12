@@ -48,8 +48,13 @@ public:
      *  @param maxVerticalAngle: It is a float value which limits the angle calculation in vertical direction process. Default maxHorizontalAngle = PI/4.
      */
     NormalDepthMap();
-    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle);
-    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, float attenuationCoeff);
+    NormalDepthMap(float maxRange,
+                   float maxHorizontalAngle, 
+                   float maxVerticalAngle);
+    NormalDepthMap(float maxRange, 
+                   float maxHorizontalAngle,
+                   float maxVerticalAngle,
+                   float attenuationCoeff);
 
     /**
      * @brief Add the models in the normal depth map node
@@ -64,7 +69,6 @@ public:
     const osg::ref_ptr<osg::Group> getNormalDepthMapNode() const {
         return _normalDepthMapNode;
     }
-
 
     void setMaxRange(float maxRange);
     float getMaxRange();
