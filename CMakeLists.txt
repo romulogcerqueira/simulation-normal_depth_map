@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(normal_depth_map)
 
+set(ENABLE_TEST FALSE)
+
 ## DEFINE MAIN PATHS
 set(bin_path ${PROJECT_BINARY_DIR}/bin)
 set(source_path ${PROJECT_SOURCE_DIR}/src)
@@ -13,5 +15,7 @@ include_directories(${source_path})
 add_subdirectory(${source_path})
 
 # Add test cases
-enable_testing()
-add_subdirectory(${test_path})
+if(${ENABLE_TEST})
+  enable_testing()
+  add_subdirectory(${test_path})
+endif(${ENABLE_TEST})
