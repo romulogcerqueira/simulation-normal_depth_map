@@ -156,9 +156,6 @@ vec4 primaryReflections() {
     // distance calculation
     float viewDistance = length(worldIncident);
 
-    // attenuation effect of sound in the water
-    nWorldNormal = nWorldNormal * exp(-2 * attenuationCoeff * viewDistance);
-
     // normalize distance using range value (farPlane)
     float nViewDistance = viewDistance / farPlane;
 
@@ -233,16 +230,39 @@ vec4 secondaryReflections(vec4 firstR) {
 
     return output;
 }
+
+// ============================================================================================================================
+
+// merge primary and secondary reflections
+vec4 unifiedReflections (vec4 firstR, vec4 secndR) {
+
+    // distance calculation
+    float nDistance = (firstR.y + secndR.y);
+
+    // normal calculation
+    float nNormal = (firstR.z + secndR.z);
+
+    // attenuation effect of sound in the water
+    nNormal = nNormal * exp(-2 * attenuationCoeff * nDistance * farPlane);
+
+    // outputs the merged data (distance + normal) for both reflections
+    vec4 output = vec4(0, 0, 0, 1);
+    if (nDistance <= 1) {
+        output.y = nDistance;
+        output.z = nNormal;
+    }
+    return output;
+}
+
 // ============================================================================================================================
 
 void main() {
-    // output: primary reflections by rasterization
+    // primary reflections by rasterization
     vec4 firstR = primaryReflections();
 
-    // output: secondary reflections by ray-tracing
+    // secondary reflections by ray-tracing
     vec4 secndR = secondaryReflections(firstR);
 
-    // TODO: unify primary + secondary reflections
-    gl_FragData[0] = firstR;
-    // gl_FragData[0] = secndR;
+    // unified reflections (primary + secondary)
+    gl_FragData[0] = unifiedReflections(firstR, secndR);
 }

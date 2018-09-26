@@ -109,13 +109,13 @@ void ImageViewerCaptureTool::setupViewer(osg::ref_ptr<osg::Group> node, uint wid
         scene->addChild(node->getChild(i));
     }
 
-    // 1st pass: primary reflections by rasterization pipeline
+    // 1st pass: hybrid pipeline (rasterization + ray tracing) for primary and secondary reflections
     osg::ref_ptr<osg::Texture2D> pass12tex0 = createFloatTexture(width, height);
     osg::ref_ptr<osg::Camera> pass1cam = createRTTCamera(osg::Camera::COLOR_BUFFER0, pass12tex0, gfxc);
     pass1cam->addChild(scene);
     pass1root->addChild(pass1cam);
 
-    // 2nd pass: secondary reflections by ray-triangle intersection
+    // 2nd pass: shader image output
     osg::ref_ptr<osg::Texture2D> pass2tex = createFloatTexture(width, height);
     osg::ref_ptr<osg::Camera> pass2cam = createRTTCamera(osg::Camera::COLOR_BUFFER0, pass2tex, gfxc);
     pass2cam->addChild(scene);
