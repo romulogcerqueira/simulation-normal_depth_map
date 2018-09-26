@@ -67,12 +67,12 @@ BOOST_AUTO_TEST_CASE(differentMaterials_testCase) {
     cv::split(scene4, channels4);
 
     // assert that normal matrixes are differents
-    BOOST_CHECK(areEquals(channels1[0], channels2[0]) == false);
-    BOOST_CHECK(areEquals(channels1[0], channels3[0]) == false);
-    BOOST_CHECK(areEquals(channels1[0], channels4[0]) == false);
-    BOOST_CHECK(areEquals(channels2[0], channels3[0]) == false);
-    BOOST_CHECK(areEquals(channels2[0], channels4[0]) == false);
-    BOOST_CHECK(areEquals(channels3[0], channels4[0]) == false);
+    BOOST_CHECK(areEqualImages(channels1[0], channels2[0]) == false);
+    BOOST_CHECK(areEqualImages(channels1[0], channels3[0]) == false);
+    BOOST_CHECK(areEqualImages(channels1[0], channels4[0]) == false);
+    BOOST_CHECK(areEqualImages(channels2[0], channels3[0]) == false);
+    BOOST_CHECK(areEqualImages(channels2[0], channels4[0]) == false);
+    BOOST_CHECK(areEqualImages(channels3[0], channels4[0]) == false);
 
     // output
     cv::Mat output1, output2, output;

@@ -1,18 +1,18 @@
-/*
- * NormalDepthMap.h
- *
- *  Created on: Mar 27, 2015
- *      Author: tiagotrocoli
- */
-
 #ifndef SIMULATION_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
 #define SIMULATION_NORMAL_DEPTH_MAP_SRC_NORMALDEPTHMAP_HPP_
 
+#include "Tools.hpp"
+
+// C++ includes
+#include <vector>
+
+// OSG includes
 #include <osg/Node>
 #include <osg/Group>
 #include <osg/ref_ptr>
 
 namespace normal_depth_map {
+
 
 /**
  * @brief Gets the informations of normal and depth from a osg scene, between the objects and the camera.
@@ -36,20 +36,18 @@ public:
      *  BLUE CHANNEL, presents the normal values from the objects to the center camera, where:
      *      1 is the max value, and represents the normal vector of the object surface and the normal vector of camera are in the same directions, || ;
      *      0 is the minimum value, the normal vector of the object surface and the normal vector of camera are in the perpendicular directions, |_ ;
-     *  GREEN CHANNEL presents the depth values relative from camera center, where:
+     *  GREEN CHANNEL presents the linear depth values relative from camera center in 8bits precision, where:
      *      0 is the minimum value, and represents the object is near from the camera;
      *      1 is the max value, and represents the object is far from the camera, and it is limited by max range;
-     *  RED CHANNEL presents the horizontal angles values relative from camera center, where:
-     *      0 is the minimum value, and represents the object is the object is directly in front of the camera;
-     *      1 is the max value, and represents the object is not on front of the camera, and it is limited by max range;
+     *  DEPTH BUFFER presents the linear depth values relative from camera center in 32bits precision, where:
+     *      0 is the minimum value, and represents the object is near from the camera;
+     *      1 is the max value, and represents the object is far from the camera, and it is limited by max range;
      *
      *  @param maxRange: It is a float value which limits the depth calculation process. Default maxRange = 50.0
-     *  @param maxHorizontalAngle: It is a float value which limits the angle calculation in horizontal direction process. Default maxHorizontalAngle = PI/4.
-     *  @param maxVerticalAngle: It is a float value which limits the angle calculation in vertical direction process. Default maxHorizontalAngle = PI/4.
      */
     NormalDepthMap();
-    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle);
-    NormalDepthMap(float maxRange, float maxHorizontalAngle, float maxVerticalAngle, float attenuationCoeff);
+    NormalDepthMap(float maxRange);
+    NormalDepthMap(float maxRange, float attenuationCoeff);
 
     /**
      * @brief Add the models in the normal depth map node
@@ -63,17 +61,10 @@ public:
      */
     const osg::ref_ptr<osg::Group> getNormalDepthMapNode() const {
         return _normalDepthMapNode;
-    }
-
+    };
 
     void setMaxRange(float maxRange);
     float getMaxRange();
-
-    void setMaxHorizontalAngle(float maxHorizontalAngle);
-    float getMaxHorizontalAngle();
-
-    void setMaxVerticalAngle(float maxVerticalAngle);
-    float getMaxVerticalAngle();
 
     void setAttenuationCoefficient(float coefficient);
     float getAttenuationCoefficient();
@@ -84,16 +75,16 @@ public:
     void setDrawDepth(bool drawDepth);
     bool isDrawDepth();
 
+
 private:
+    osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
+    TrianglesVisitor _visitor;
 
     osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(
                               float maxRange = 50.0,
-                              float maxHorizontalAngle = M_PI * 1.0 / 6.0,
-                              float maxVerticalAngle = M_PI * 1.0 / 6.0,
                               float attenuationCoefficient = 0,
                               bool drawDepth = true,
                               bool drawNormal = true);
-    osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
 };
 }
 

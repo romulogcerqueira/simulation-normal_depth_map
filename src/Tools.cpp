@@ -1,6 +1,8 @@
-// C++ includes
 #include "Tools.hpp"
+
+// C++ includes
 #include <cmath>
+#include <iostream>
 
 namespace normal_depth_map {
 
@@ -37,6 +39,33 @@ double underwaterSignalAttenuation( const double frequency,
     attenuation = -log(attenuation);
 
     return attenuation;
+}
+
+// convert triangles into texture (to be read by shader)
+void triangles2texture(
+    std::vector<Triangle> triangles,
+    osg::ref_ptr<osg::Texture2D> &texture)
+{
+    osg::ref_ptr<osg::Image> image = new osg::Image();
+    image->allocateImage(triangles.size(),
+                         triangles[0].getAllDataAsVector().size(),
+                         1,
+                         GL_RED,
+                         GL_FLOAT);
+    image->setInternalTextureFormat(GL_R32F);
+
+    for (size_t j = 0; j < triangles.size(); j++)
+    {
+        std::vector<float> data = triangles[j].getAllDataAsVector();
+        for (size_t i = 0; i < data.size(); i++)
+            setOSGImagePixel(image, i, j, 0, data[i]);
+    }
+
+    texture = new osg::Texture2D;
+    texture->setTextureSize(image->s(), image->t());
+    texture->setResizeNonPowerOfTwoHint(false);
+    texture->setUnRefImageDataAfterApply(true);
+    texture->setImage(image);
 }
 
 }
