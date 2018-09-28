@@ -53,13 +53,12 @@ cv::Mat test_helper::computeNormalDepthMap(  osg::ref_ptr<osg::Group> root,
     NormalDepthMap normalDepthMap(maxRange, attenuationCoeff);
     normalDepthMap.addNodeChild(root);
 
-    ImageViewerCaptureTool capture(normalDepthMap.getNormalDepthMapNode(), fovY, fovX, height);
+    ImageViewerCaptureTool capture(fovY, fovX, height);
     capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
     capture.setCameraPosition(eye, center, up);
 
-
     // grab scene
-    osg::ref_ptr<osg::Image> osgImage = capture.grabImage();
+    osg::ref_ptr<osg::Image> osgImage = capture.grabImage(normalDepthMap.getNormalDepthMapNode());
     cv::Mat cvImage = cv::Mat(osgImage->t(), osgImage->s(), CV_32FC3, osgImage->data());
 
     cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR);

@@ -15,10 +15,8 @@
 
 namespace normal_depth_map {
 
-#define PASS1_VERT_PATH "normal_depth_map/shaders/pass1.vert"
-#define PASS1_FRAG_PATH "normal_depth_map/shaders/pass1.frag"
-#define PASS2_VERT_PATH "normal_depth_map/shaders/pass2.vert"
-#define PASS2_FRAG_PATH "normal_depth_map/shaders/pass2.frag"
+#define SHADER_VERT "normal_depth_map/shaders/pass1.vert"
+#define SHADER_FRAG "normal_depth_map/shaders/pass1.frag"
 
 NormalDepthMap::NormalDepthMap(float maxRange ) {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange);
@@ -106,13 +104,13 @@ void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     triangles2texture(triangles, trianglesRef, bboxes, trianglesTexture);
 
     // pass the triangles (data + reference) to GLSL as uniform
-    osg::ref_ptr<osg::StateSet> pass1state = _normalDepthMapNode->getChild(0)->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> ss = _normalDepthMapNode->getChild(0)->getOrCreateStateSet();
 
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::SAMPLER_2D, "trianglesTex"));
-    pass1state->setTextureAttributeAndModes(0, trianglesTexture, osg::StateAttribute::ON);
+    ss->addUniform(new osg::Uniform(osg::Uniform::SAMPLER_2D, "trianglesTex"));
+    ss->setTextureAttributeAndModes(0, trianglesTexture, osg::StateAttribute::ON);
 
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC4, "trianglesTexSize"));
-    pass1state->getUniform("trianglesTexSize")->set(osg::Vec4(  triangles.size() * 1.0,
+    ss->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC4, "trianglesTexSize"));
+    ss->getUniform("trianglesTexSize")->set(osg::Vec4(  triangles.size() * 1.0,
                                                                 (triangles.size() + trianglesRef.size()) * 1.0,
                                                                 trianglesTexture->getTextureWidth() * 1.0,
                                                                 trianglesTexture->getTextureHeight() * 1.0));
@@ -124,39 +122,25 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
                                                 bool drawDepth,
                                                 bool drawNormal) {
 
-    osg::ref_ptr<osg::Group> localRoot = new osg::Group();
+    // setup connection between OSG and shaders
+    osg::ref_ptr<osg::Group> root = new osg::Group();
+    osg::ref_ptr<osg::Program> program = new osg::Program();
+    osg::ref_ptr<osg::StateSet> ss = root->getOrCreateStateSet();
+    program->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX,     osgDB::findDataFile(SHADER_VERT)));
+    program->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT,   osgDB::findDataFile(SHADER_FRAG)));
+    ss->setAttributeAndModes( program, osg::StateAttribute::ON );
 
-    // 1st pass: primary reflections by rasterization pipeline
-    osg::ref_ptr<osg::Group> pass1root = new osg::Group();
-    osg::ref_ptr<osg::Program> pass1prog = new osg::Program();
-    osg::ref_ptr<osg::StateSet> pass1state = pass1root->getOrCreateStateSet();
-    pass1prog->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX, osgDB::findDataFile(PASS1_VERT_PATH)));
-    pass1prog->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT, osgDB::findDataFile(PASS1_FRAG_PATH)));
-    pass1state->setAttributeAndModes( pass1prog, osg::StateAttribute::ON );
+    // set uniforms
+    ss->addUniform(new osg::Uniform(osg::Uniform::FLOAT, "farPlane"));
+    ss->addUniform(new osg::Uniform(osg::Uniform::FLOAT, "attenuationCoeff"));
+    ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawDistance"));
+    ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawNormal"));
+    ss->getUniform("farPlane")->set(maxRange);
+    ss->getUniform("attenuationCoeff")->set(attenuationCoefficient);
+    ss->getUniform("drawDistance")->set(drawDepth);
+    ss->getUniform("drawNormal")->set(drawNormal);
 
-    // 1st pass: uniforms
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::FLOAT, "farPlane"));
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::FLOAT, "attenuationCoeff"));
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawDistance"));
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawNormal"));
-    pass1state->getUniform("farPlane")->set(maxRange);
-    pass1state->getUniform("attenuationCoeff")->set(attenuationCoefficient);
-    pass1state->getUniform("drawDistance")->set(drawDepth);
-    pass1state->getUniform("drawNormal")->set(drawNormal);
-
-    // 2nd pass: secondary reflections by ray-triangle intersection
-    osg::ref_ptr<osg::Group> pass2root = new osg::Group();
-    osg::ref_ptr<osg::Program> pass2prog = new osg::Program();
-    osg::ref_ptr<osg::StateSet> pass2state = pass2root->getOrCreateStateSet();
-    pass2prog->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX, osgDB::findDataFile(PASS2_VERT_PATH)));
-    pass2prog->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT, osgDB::findDataFile(PASS2_FRAG_PATH)));
-    pass2state->setAttributeAndModes( pass2prog, osg::StateAttribute::ON );
-
-    // set the main root
-    localRoot->addChild(pass1root);
-    localRoot->addChild(pass2root);
-
-    return localRoot;
+    return root;
 }
 
 } // namespace normal_depth_map

@@ -86,7 +86,7 @@ namespace normal_depth_map {
             : data(2, osg::Vec3f(0, 0, 0)){};
 
         BoundingBox(osg::Vec3f min, osg::Vec3f max)
-            : data(2)
+            : data(2, osg::Vec3f(0, 0, 0))
         {
             data[0] = min;
             data[1] = max;

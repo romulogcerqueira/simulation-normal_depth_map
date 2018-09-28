@@ -175,7 +175,6 @@ vec4 primaryReflections() {
 vec4 secondaryReflections(vec4 firstR) {
 
     // calculate the reflection direction for an incident vector
-    // TODO: use the nWorldNormal after first reflection process: normal mapping, reflectivity and attenuation.
     vec3 worldIncident = cameraPos - worldPos;
     vec3 nWorldNormal = normalize(worldNormal);
     vec3 reflectedDir = reflect(-worldIncident, nWorldNormal);
