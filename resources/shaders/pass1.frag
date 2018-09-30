@@ -144,6 +144,7 @@ vec4 primaryReflections() {
 
     // normal for textured scenes (by normal mapping)
     if (useNormalTex) {
+        // convert Tangent space to World space with TBN matrix
         vec3 normalRGB = texture2D(normalTex, gl_TexCoord[0].xy).rgb;
         vec3 normalMap = (normalRGB * 2.0 - 1.0) * TBN;
         nWorldNormal = normalize(normalMap);

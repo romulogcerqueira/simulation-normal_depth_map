@@ -129,7 +129,7 @@ WindowCaptureScreen::WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gfxc
         _tex = tex;
         int width = gfxc->getTraits()->width;
         int height = gfxc->getTraits()->height;
-        _image->allocateImage(width, height, 4, GL_RGBA, GL_FLOAT);
+        _image->allocateImage(width, height, 1, GL_RGBA, GL_FLOAT);
     }
 }
 
