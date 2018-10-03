@@ -69,14 +69,16 @@ public:
     void setAttenuationCoefficient(float coefficient);
     float getAttenuationCoefficient();
 
-    void setDrawNormal(bool drawNormal);
+    void setDrawNormal(bool value);
     bool isDrawNormal();
 
-    void setDrawDepth(bool drawDepth);
+    void setDrawDepth(bool value);
     bool isDrawDepth();
 
+    void setDrawReverb(bool value);
+    bool isDrawReverb();
 
-private:
+  private:
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
     TrianglesVisitor _visitor;
 
@@ -84,7 +86,8 @@ private:
                               float maxRange = 50.0,
                               float attenuationCoefficient = 0,
                               bool drawDepth = true,
-                              bool drawNormal = true);
+                              bool drawNormal = true,
+                              bool drawReverb = true);
 };
 }
 

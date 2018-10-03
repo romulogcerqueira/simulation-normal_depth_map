@@ -7,6 +7,7 @@ in mat3 TBN;                        // TBN matrix
 
 uniform bool drawNormal;            // enable normal drawing in final shader image
 uniform bool drawDistance;          // enable distance drawing in final shader image
+uniform bool drawReverb;            // enable reverberation effect in final shader image
 uniform float farPlane;             // maximum range
 uniform float reflectance;          // reflectance value
 uniform float attenuationCoeff;     // attenuation coefficient
@@ -259,10 +260,16 @@ vec4 unifiedReflections (vec4 firstR, vec4 secndR) {
 void main() {
     // primary reflections by rasterization
     vec4 firstR = primaryReflections();
+    vec4 output = firstR;
 
-    // secondary reflections by ray-tracing
-    vec4 secndR = secondaryReflections(firstR);
+    if (drawReverb) {
+        // secondary reflections by ray-tracing
+        vec4 secndR = secondaryReflections(firstR);
 
-    // unified reflections (primary + secondary)
-    gl_FragData[0] = unifiedReflections(firstR, secndR);
+        // unified reflections (primary + secondary)
+        output = unifiedReflections(firstR, secndR);
+    }
+
+    // presents the final sonar image
+    gl_FragData[0] = output;
 }

@@ -60,32 +60,46 @@ float NormalDepthMap::getAttenuationCoefficient() {
     return coefficient;
 }
 
-void NormalDepthMap::setDrawNormal(bool drawNormal) {
+void NormalDepthMap::setDrawNormal(bool value) {
     _normalDepthMapNode->getOrCreateStateSet()
                        ->getUniform("drawNormal")
-                       ->set(drawNormal);
+                       ->set(value);
 }
 
 bool NormalDepthMap::isDrawNormal() {
-    bool drawNormal;
+    bool value;
     _normalDepthMapNode->getOrCreateStateSet()
                        ->getUniform("drawNormal")
-                       ->get(drawNormal);
-    return drawNormal;
+                       ->get(value);
+    return value;
 }
 
-void NormalDepthMap::setDrawDepth(bool drawDepth) {
+void NormalDepthMap::setDrawDepth(bool value) {
     _normalDepthMapNode->getOrCreateStateSet()
                        ->getUniform("drawDepth")
-                       ->set(drawDepth);
+                       ->set(value);
 }
 
 bool NormalDepthMap::isDrawDepth() {
-    bool drawDepth;
+    bool value;
     _normalDepthMapNode->getOrCreateStateSet()
                        ->getUniform("drawDepth")
-                       ->get(drawDepth);
-    return drawDepth;
+                       ->get(value);
+    return value;
+}
+
+void NormalDepthMap::setDrawReverb(bool value) {
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawReverb")
+                       ->set(value);
+}
+
+bool NormalDepthMap::isDrawReverb() {
+    bool value;
+    _normalDepthMapNode->getOrCreateStateSet()
+                       ->getUniform("drawReverb")
+                       ->get(value);
+    return value;
 }
 
 void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
@@ -120,7 +134,8 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
                                                 float maxRange,
                                                 float attenuationCoefficient,
                                                 bool drawDepth,
-                                                bool drawNormal) {
+                                                bool drawNormal,
+                                                bool drawReverb) {
 
     // setup connection between OSG and shaders
     osg::ref_ptr<osg::Group> root = new osg::Group();
@@ -135,10 +150,12 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
     ss->addUniform(new osg::Uniform(osg::Uniform::FLOAT, "attenuationCoeff"));
     ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawDistance"));
     ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawNormal"));
+    ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawReverb"));
     ss->getUniform("farPlane")->set(maxRange);
     ss->getUniform("attenuationCoeff")->set(attenuationCoefficient);
     ss->getUniform("drawDistance")->set(drawDepth);
     ss->getUniform("drawNormal")->set(drawNormal);
+    ss->getUniform("drawReverb")->set(drawReverb);
 
     return root;
 }
