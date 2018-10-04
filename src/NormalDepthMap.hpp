@@ -80,7 +80,6 @@ public:
 
   private:
     osg::ref_ptr<osg::Group> _normalDepthMapNode; //main shader node
-    TrianglesVisitor _visitor;
 
     osg::ref_ptr<osg::Group> createTheNormalDepthMapShaderNode(
                               float maxRange = 50.0,

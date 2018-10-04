@@ -105,13 +105,18 @@ bool NormalDepthMap::isDrawReverb() {
 void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     _normalDepthMapNode->addChild(node);
 
+    // compute tangent space
+    ComputeTangentVisitor ctv;
+    _normalDepthMapNode->accept(ctv);
+
     // collect all triangles of scene
-    _normalDepthMapNode->accept(_visitor);
+    TrianglesVisitor trv;
+    _normalDepthMapNode->accept(trv);
 
     // sort the scene's triangles in ascending order (for each model)
-    std::vector<Triangle> triangles = _visitor.getTriangles();
-    std::vector<uint> trianglesRef = _visitor.getTrianglesRef();
-    std::vector<BoundingBox> bboxes = _visitor.getBoundingBoxes();
+    std::vector<Triangle> triangles = trv.getTriangles();
+    std::vector<uint> trianglesRef = trv.getTrianglesRef();
+    std::vector<BoundingBox> bboxes = trv.getBoundingBoxes();
 
     // convert triangles (data + reference) to osg texture
     osg::ref_ptr<osg::Texture2D> trianglesTexture;

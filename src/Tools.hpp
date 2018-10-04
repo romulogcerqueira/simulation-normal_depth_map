@@ -12,6 +12,7 @@
 #include <osg/TriangleFunctor>
 #include <osg/Texture2D>
 #include <osg/Image>
+#include <osgUtil/TangentSpaceGenerator>
 
 namespace normal_depth_map {
 
@@ -158,6 +159,42 @@ namespace normal_depth_map {
         std::vector<Triangle> getTriangles() { return tf.triangles; };
         std::vector<uint> getTrianglesRef() { return trianglesRef; };
         std::vector<BoundingBox> getBoundingBoxes() { return bboxes; };
+    };
+
+    /**
+     * @brief
+     *
+     */
+    class ComputeTangentVisitor : public osg::NodeVisitor
+    {
+      public:
+        void apply(osg::Node &node)
+        {
+            traverse(node);
+        }
+
+        void apply(osg::Geode &node)
+        {
+            for (unsigned int i = 0; i < node.getNumDrawables(); ++i)
+            {
+                osg::Geometry *geom = dynamic_cast<osg::Geometry *>(node.getDrawable(i));
+                if (geom)
+                    generateTangentArray(geom);
+            }
+            traverse(node);
+        }
+
+        void generateTangentArray(osg::Geometry *geom)
+        {
+            osg::ref_ptr<osgUtil::TangentSpaceGenerator> tsg = new osgUtil::TangentSpaceGenerator;
+            tsg->generate(geom, 0);
+            geom->setVertexAttribArray(6, tsg->getTangentArray());
+            geom->setVertexAttribBinding(6, osg::Geometry::BIND_PER_VERTEX);
+            geom->setVertexAttribArray(7, tsg->getBinormalArray());
+            geom->setVertexAttribBinding(7, osg::Geometry::BIND_PER_VERTEX);
+            geom->setVertexAttribArray(15, tsg->getNormalArray());
+            geom->setVertexAttribBinding(15, osg::Geometry::BIND_PER_VERTEX);
+        }
     };
 
     /**

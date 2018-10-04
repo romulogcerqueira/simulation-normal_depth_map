@@ -2,6 +2,10 @@
 
 uniform mat4 osg_ViewMatrixInverse;
 
+attribute vec3 tangent;
+attribute vec3 binormal;
+attribute vec3 normal;
+
 out vec3 worldPos;
 out vec3 worldNormal;
 out vec3 cameraPos;
