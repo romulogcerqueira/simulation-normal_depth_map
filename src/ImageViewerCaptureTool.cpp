@@ -2,10 +2,6 @@
 
 // C++ includes
 #include <iostream>
-#include <unistd.h>
-
-// OSG includes
-#include <osg/PolygonMode>
 
 namespace normal_depth_map {
 
@@ -97,24 +93,6 @@ osg::ref_ptr<osg::Image> ImageViewerCaptureTool::grabImage(osg::ref_ptr<osg::Nod
     return _capture->captureImage();
 }
 
-void ImageViewerCaptureTool::setCameraPosition( const osg::Vec3d& eye,
-                                                const osg::Vec3d& center,
-                                                const osg::Vec3d& up) {
-
-    _viewer->getCamera()->setViewMatrixAsLookAt(eye, center, up);
-}
-
-void ImageViewerCaptureTool::getCameraPosition( osg::Vec3d& eye,
-                                                osg::Vec3d& center,
-                                                osg::Vec3d& up) {
-
-    _viewer->getCamera()->getViewMatrixAsLookAt(eye, center, up);
-}
-
-void ImageViewerCaptureTool::setBackgroundColor(osg::Vec4d color) {
-    _viewer->getCamera()->setClearColor(color);
-}
-
 ////////////////////////////////
 ////WindowCaptureScreen METHODS
 ////////////////////////////////
@@ -139,7 +117,7 @@ WindowCaptureScreen::~WindowCaptureScreen() {
 }
 
 osg::ref_ptr<osg::Image> WindowCaptureScreen::captureImage() {
-    //wait to finish the capture image in call back
+    //wait to finish the capture image in callback
     _condition->wait(_mutex);
     return _image;
 }

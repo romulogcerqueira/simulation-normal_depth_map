@@ -32,82 +32,8 @@ NormalDepthMap::NormalDepthMap() {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode();
 }
 
-void NormalDepthMap::setMaxRange(float maxRange) {
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("farPlane")
-                       ->set(maxRange);
-}
-
-float NormalDepthMap::getMaxRange() {
-    float maxRange = 0;
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("farPlane")
-                       ->get(maxRange);
-    return maxRange;
-}
-
-void NormalDepthMap::setAttenuationCoefficient(float coefficient) {
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("attenuationCoeff")
-                       ->set(coefficient);
-}
-
-float NormalDepthMap::getAttenuationCoefficient() {
-    float coefficient = 0;
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("attenuationCoeff")
-                       ->get(coefficient);
-    return coefficient;
-}
-
-void NormalDepthMap::setDrawNormal(bool value) {
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawNormal")
-                       ->set(value);
-}
-
-bool NormalDepthMap::isDrawNormal() {
-    bool value;
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawNormal")
-                       ->get(value);
-    return value;
-}
-
-void NormalDepthMap::setDrawDepth(bool value) {
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawDepth")
-                       ->set(value);
-}
-
-bool NormalDepthMap::isDrawDepth() {
-    bool value;
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawDepth")
-                       ->get(value);
-    return value;
-}
-
-void NormalDepthMap::setDrawReverb(bool value) {
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawReverb")
-                       ->set(value);
-}
-
-bool NormalDepthMap::isDrawReverb() {
-    bool value;
-    _normalDepthMapNode->getOrCreateStateSet()
-                       ->getUniform("drawReverb")
-                       ->get(value);
-    return value;
-}
-
 void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     _normalDepthMapNode->addChild(node);
-
-    // compute tangent space
-    ComputeTangentVisitor ctv;
-    _normalDepthMapNode->accept(ctv);
 
     // collect all triangles of scene
     TrianglesVisitor trv;
@@ -137,7 +63,7 @@ void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
 
 osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
                                                 float maxRange,
-                                                float attenuationCoefficient,
+                                                float attenuationCoeff,
                                                 bool drawDepth,
                                                 bool drawNormal,
                                                 bool drawReverb) {
@@ -157,7 +83,7 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
     ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawNormal"));
     ss->addUniform(new osg::Uniform(osg::Uniform::BOOL, "drawReverb"));
     ss->getUniform("farPlane")->set(maxRange);
-    ss->getUniform("attenuationCoeff")->set(attenuationCoefficient);
+    ss->getUniform("attenuationCoeff")->set(attenuationCoeff);
     ss->getUniform("drawDistance")->set(drawDepth);
     ss->getUniform("drawNormal")->set(drawNormal);
     ss->getUniform("drawReverb")->set(drawReverb);

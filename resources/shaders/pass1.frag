@@ -18,23 +18,27 @@ uniform bool useNormalTex;          // enable normal mapping process
 uniform sampler2D trianglesTex;     // all triangles and bounding boxes collected from the simulated scene
 uniform vec4 trianglesTexSize;      // texture size of triangles
 
+in vec3 tangent;
+in vec3 binormal;
+in vec3 normal;
+
 // ray definition
 struct Ray {
     vec3 origin;
     vec3 direction;
-    vec3 inv_direction;
+    vec3 invDirection;
     int sign[3];
 };
 
 Ray makeRay(vec3 origin, vec3 direction) {
-    vec3 inv_direction = vec3(1.0) / direction;
+    vec3 invDirection = vec3(1.0) / direction;
     return Ray(
         origin,
         direction,
-        inv_direction,
-        int[3] (int(inv_direction.x < 0.0),
-                int(inv_direction.y < 0.0),
-                int(inv_direction.z < 0.0)));
+        invDirection,
+        int[3] (int(invDirection.x < 0.0),
+                int(invDirection.y < 0.0),
+                int(invDirection.z < 0.0)));
 }
 
 // triangle definition
@@ -87,12 +91,12 @@ bool boxContainsPoint(Box box, vec3 p) {
 // source: https://bit.ly/2oCdyEP
 bool rayIntersectsBox(Ray ray, Box box)
 {
-    float tmin  = (box.aabb[ray.sign[0]    ].x - ray.origin.x) * ray.inv_direction.x;
-    float tmax  = (box.aabb[1 - ray.sign[0]].x - ray.origin.x) * ray.inv_direction.x;
-    float tymin = (box.aabb[ray.sign[1]    ].y - ray.origin.y) * ray.inv_direction.y;
-    float tymax = (box.aabb[1 - ray.sign[1]].y - ray.origin.y) * ray.inv_direction.y;
-    float tzmin = (box.aabb[ray.sign[2]    ].z - ray.origin.z) * ray.inv_direction.z;
-    float tzmax = (box.aabb[1 - ray.sign[2]].z - ray.origin.z) * ray.inv_direction.z;
+    float tmin  = (box.aabb[ray.sign[0]    ].x - ray.origin.x) * ray.invDirection.x;
+    float tmax  = (box.aabb[1 - ray.sign[0]].x - ray.origin.x) * ray.invDirection.x;
+    float tymin = (box.aabb[ray.sign[1]    ].y - ray.origin.y) * ray.invDirection.y;
+    float tymax = (box.aabb[1 - ray.sign[1]].y - ray.origin.y) * ray.invDirection.y;
+    float tzmin = (box.aabb[ray.sign[2]    ].z - ray.origin.z) * ray.invDirection.z;
+    float tzmax = (box.aabb[1 - ray.sign[2]].z - ray.origin.z) * ray.invDirection.z;
 
     tmin = max(max(tmin, tymin), tzmin);
     tmax = min(min(tmax, tymax), tzmax);

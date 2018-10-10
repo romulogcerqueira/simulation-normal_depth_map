@@ -41,7 +41,6 @@ double underwaterSignalAttenuation( const double frequency,
     return attenuation;
 }
 
-// convert triangles into texture (to be read by shader)
 void triangles2texture(
     std::vector<Triangle> triangles,
     std::vector<uint> trianglesRef,

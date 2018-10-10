@@ -8,30 +8,24 @@
 // OSG includes
 #include <osg/Node>
 #include <osg/Geode>
-#include <osg/ref_ptr>
 #include <osg/TriangleFunctor>
 #include <osg/Texture2D>
-#include <osg/Image>
-#include <osgUtil/TangentSpaceGenerator>
 
 namespace normal_depth_map {
 
     /**
-     * @brief compute Underwater Signal Attenuation coefficient
+     * Compute underwater signal attenuation coefficient.
+     * This method is based on paper "A simplified formula for viscous and
+     * chemical absorption in sea water". The algorithm computes the attenuation
+     * coefficient that will be used on shader normal intensite return.
      *
-     *  This method is based on paper "A simplified formula for viscous and
-     *  chemical absorption in sea water". The method computes the attenuation
-     *  coefficient that will be used on shader normal intensite return.
-     *
-     *  @param double frequency: sound frequency in kHz.
-     *  @param double temperature: water temperature in Celsius degrees.
-     *  @param double depth: distance from water surface in meters.
-     *  @param double salinity: amount of salt dissolved in a body of water in ppt.
-     *  @param double acidity: pH water value.
-     *
-     *  @return double coefficient attenuation value
-     */
-
+     * @param frequency: sound frequency in kHz.
+     * @param temperature: water temperature in Celsius degrees.
+     * @param depth: distance from water surface in meters.
+     * @param salinity: amount of salt dissolved in a body of water in ppt.
+     * @param acidity: pH water value.
+     * @return coefficient attenuation value.
+    */
     double underwaterSignalAttenuation( const double frequency,
                                         const double temperature,
                                         const double depth,
@@ -39,9 +33,8 @@ namespace normal_depth_map {
                                         const double acidity);
 
     /**
-     * @brief
-     *
-     */
+     * Triangle definition.
+    */
     struct Triangle
     {
         std::vector<osg::Vec3f> data;
@@ -76,9 +69,8 @@ namespace normal_depth_map {
     };
 
     /**
-     * @brief
-     *
-     */
+     * Bounding box definition.
+    */
     struct BoundingBox
     {
         std::vector<osg::Vec3f> data;
@@ -104,8 +96,8 @@ namespace normal_depth_map {
     };
 
     /**
-     * @brief
-     *
+     * Visit a node and store the triangles and bouding boxes data (in world coordinates)
+     * of each 3D model.
      */
     class TrianglesVisitor : public osg::NodeVisitor
     {
@@ -162,63 +154,32 @@ namespace normal_depth_map {
     };
 
     /**
-     * @brief
+     * Set the pixel value of an osg image.
      *
-     */
-    class ComputeTangentVisitor : public osg::NodeVisitor
-    {
-      public:
-        void apply(osg::Node &node)
-        {
-            traverse(node);
-        }
-
-        void apply(osg::Geode &node)
-        {
-            for (unsigned int i = 0; i < node.getNumDrawables(); ++i)
-            {
-                osg::Geometry *geom = dynamic_cast<osg::Geometry *>(node.getDrawable(i));
-                if (geom)
-                    generateTangentArray(geom);
-            }
-            traverse(node);
-        }
-
-        void generateTangentArray(osg::Geometry *geom)
-        {
-            osg::ref_ptr<osgUtil::TangentSpaceGenerator> tsg = new osgUtil::TangentSpaceGenerator;
-            tsg->generate(geom, 0);
-            geom->setVertexAttribArray(6, tsg->getTangentArray());
-            geom->setVertexAttribBinding(6, osg::Geometry::BIND_PER_VERTEX);
-            geom->setVertexAttribArray(7, tsg->getBinormalArray());
-            geom->setVertexAttribBinding(7, osg::Geometry::BIND_PER_VERTEX);
-            geom->setVertexAttribArray(15, tsg->getNormalArray());
-            geom->setVertexAttribBinding(15, osg::Geometry::BIND_PER_VERTEX);
-        }
-    };
-
-    /**
-     * @brief
-     *
+     * @param image: source OSG image data.
+     * @param x: column index of source image.
+     * @param y: row index of source image.
+     * @param k: channel index of source image.
+     * @param value: the new pixel value.
      */
     template <typename T>
     void setOSGImagePixel(osg::ref_ptr<osg::Image> &image,
                           unsigned int x,
                           unsigned int y,
-                          unsigned int channel,
+                          unsigned int k,
                           T value)
     {
 
         bool valid = (y < (unsigned int)image->s())
                      && (x < (unsigned int)image->t())
-                     && (channel < (unsigned int)image->r());
+                     && (k < (unsigned int)image->r());
 
         if (!valid) {
             std::cout << "Not valid" << std::endl;
             return;
         }
 
-        uint step = (x * image->s() + y) * image->r() + channel;
+        uint step = (x * image->s() + y) * image->r() + k;
 
         T *data = (T *)image->data();
         data = data + step;
@@ -226,8 +187,13 @@ namespace normal_depth_map {
     }
 
     /**
-     * @brief
+     * Convert the triangles/meshes data extracted from 3D models into
+     * an OSG texture to be read by shader.
      *
+     * @param triangles: vector of triangles.
+     * @param trianglesRef: index of triangles per 3D model on texture.
+     * @param bboxes: bounding box data (vmin and vmax) of each 3D model.
+     * @param texture: final OSG texture with triangles data.
      */
     void triangles2texture(
         std::vector<Triangle> triangles,
