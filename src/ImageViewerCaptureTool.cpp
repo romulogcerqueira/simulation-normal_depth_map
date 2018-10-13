@@ -123,11 +123,11 @@ void ImageViewerCaptureTool::setupViewer(osg::ref_ptr<osg::Group> node, uint wid
     // set the first pass textures as uniform of second pass
     osg::ref_ptr<osg::StateSet> pass2state = pass2cam->getOrCreateStateSet();
 
-    pass2state->addUniform(new osg::Uniform("firstReflectionTex", 1));
+    pass2state->addUniform(new osg::Uniform("reflectionsTex", 1));
     pass2state->setTextureAttributeAndModes(1, pass12tex0, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 
-    pass2state->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC2, "rttTexSize"));
-    pass2state->getUniform("rttTexSize")->set(osg::Vec2(width * 1.0, height * 1.0));
+    pass2state->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC2, "reflectionsTexSize"));
+    pass2state->getUniform("reflectionsTexSize")->set(osg::Vec2(width * 1.0, height * 1.0));
     pass2root->addChild(pass2cam);
 
     // setup post render camera

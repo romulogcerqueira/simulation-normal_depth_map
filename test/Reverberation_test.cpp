@@ -38,7 +38,14 @@ BOOST_AUTO_TEST_CASE(reverberation_testCase) {
 
     // compute and display the final shader and sonar images
     for (unsigned i = 0; i < eyes.size(); ++i) {
+
+        // benchmarking
+        clock_t timeStart = clock();
         cv::Mat shaderImg = computeNormalDepthMap(scene, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
+        clock_t timeEnd = clock();
+        printf("Render time                                 : %04.2f (sec)\n", (float)(timeEnd - timeStart) / CLOCKS_PER_SEC);
+
+        // viewer
         cv::Mat sonarImg = drawSonarImage(shaderImg, maxRange, fovX * 0.5);
         cv::imshow("shaderImg", shaderImg);
         cv::imshow("sonarImg", sonarImg);

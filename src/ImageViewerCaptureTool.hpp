@@ -52,7 +52,6 @@ private:
 
 class ImageViewerCaptureTool {
 public:
-
     /**
      * @brief This class generate a hide viewer to get the osg::image without
      *  GUI.
@@ -60,7 +59,7 @@ public:
      *  @param width: Width to generate the image
      *  @param height: height to generate the image
      */
-    ImageViewerCaptureTool( osg::ref_ptr<osg::Group> node,
+    ImageViewerCaptureTool( osg::ref_ptr<osg::Group> node = new osg::Group(),
                             uint width = 640,
                             uint height = 480);
 

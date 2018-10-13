@@ -3,6 +3,7 @@
 
 // C++ includes
 #include <vector>
+#include <iostream>
 
 // OSG includes
 #include <osg/Node>
@@ -55,11 +56,12 @@ namespace normal_depth_map {
 
         void setTriangle(osg::Vec3f v1, osg::Vec3f v2, osg::Vec3f v3)
         {
-            data[0] = v1;                    // vertex 1
-            data[1] = v2;                    // vertex 2
-            data[2] = v3;                    // vertex 3
-            data[3] = (v1 + v2 + v3) / 3;    // centroid
-            data[4] = (v2 - v1) ^ (v3 - v1); // surface normal
+            data[0] = v1;                   // vertex 1
+            data[1] = v2;                   // vertex 2
+            data[2] = v3;                   // vertex 3
+            data[3] = (v1 + v2 + v3) / 3;   // centroid
+            data[4] = (v2 - v1)^(v3 - v1);
+            data[4].normalize();            // surface normal
         };
 
         // get the triangle data as vector of float
@@ -70,10 +72,33 @@ namespace normal_depth_map {
             std::vector<float> output(array, array + arraySize);
             return output;
         }
+    };
 
-        bool operator<(const Triangle &obj_1)
+    /**
+     * @brief
+     *
+     */
+    struct BoundingBox
+    {
+        std::vector<osg::Vec3f> data;
+
+        BoundingBox()
+            : data(2, osg::Vec3f(0, 0, 0)){};
+
+        BoundingBox(osg::Vec3f min, osg::Vec3f max)
+            : data(2)
         {
-            return data[3] < obj_1.data[3];
+            data[0] = min;
+            data[1] = max;
+        };
+
+        // get the triangle data as vector of float
+        std::vector<float> getAllDataAsVector()
+        {
+            float *array = &data[0].x();
+            uint arraySize = data.size() * data[0].num_components;
+            std::vector<float> output(array, array + arraySize);
+            return output;
         }
     };
 
@@ -101,23 +126,38 @@ namespace normal_depth_map {
                 triangles.push_back(Triangle(v1_w, v2_w, v3_w));
             };
         };
+        osg::TriangleFunctor<WorldTriangle> tf;
+        std::vector<uint> trianglesRef;
+        std::vector<BoundingBox> bboxes;
 
       public:
-        osg::TriangleFunctor<WorldTriangle> tf;
-
         TrianglesVisitor()
         {
             setTraversalMode(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
+            trianglesRef.push_back(0);
         };
 
         void apply(osg::Geode &geode)
         {
+            // local to world matrix
             tf.local2world = osg::computeLocalToWorld(this->getNodePath());
-            for (size_t i = 0; i < geode.getNumDrawables(); ++i)
-                geode.getDrawable(i)->accept(tf);
+
+            for (size_t idx = 0; idx < geode.getNumDrawables(); ++idx)
+            {
+                // triangles
+                geode.getDrawable(idx)->accept(tf);
+                trianglesRef.push_back(tf.triangles.size());
+
+                // bounding boxes
+                osg::BoundingBox bb = geode.getDrawable(idx)->getBound();
+                BoundingBox bb_w(bb._min * tf.local2world, bb._max * tf.local2world);
+                bboxes.push_back(bb_w);
+            }
         }
 
         std::vector<Triangle> getTriangles() { return tf.triangles; };
+        std::vector<uint> getTrianglesRef() { return trianglesRef; };
+        std::vector<BoundingBox> getBoundingBoxes() { return bboxes; };
     };
 
     /**
@@ -136,8 +176,10 @@ namespace normal_depth_map {
                      && (x < (unsigned int)image->t())
                      && (channel < (unsigned int)image->r());
 
-        if (!valid)
+        if (!valid) {
+            std::cout << "Not valid" << std::endl;
             return;
+        }
 
         uint step = (x * image->s() + y) * image->r() + channel;
 
@@ -152,6 +194,8 @@ namespace normal_depth_map {
      */
     void triangles2texture(
         std::vector<Triangle> triangles,
+        std::vector<uint> trianglesRef,
+        std::vector<BoundingBox> bboxes,
         osg::ref_ptr<osg::Texture2D> &texture);
 }
 

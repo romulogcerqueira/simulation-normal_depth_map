@@ -1,48 +1,102 @@
 #version 130
 
-in vec3 worldPos;
-in vec3 worldNormal;
-in vec3 cameraPos;
-in mat3 TBN;
+in vec3 worldPos;                   // position in world space
+in vec3 worldNormal;                // normal in world space
+in vec3 cameraPos;                  // viewer's position in world space
+in mat3 TBN;                        // TBN matrix
 
-uniform float farPlane;
-uniform bool drawNormal;
-uniform bool drawDistance;
-uniform float reflectance;
-uniform float attenuationCoeff;
+uniform bool drawNormal;            // enable normal drawing in final shader image
+uniform bool drawDistance;          // enable distance drawing in final shader image
+uniform float farPlane;             // maximum range
+uniform float reflectance;          // reflectance value
+uniform float attenuationCoeff;     // attenuation coefficient
 
-uniform sampler2D normalTex;
-uniform bool useNormalTex;
+uniform sampler2D normalTex;        // texture for normal mapping
+uniform bool useNormalTex;          // enable normal mapping process
 
-uniform sampler2D trianglesTex;         // all triangles/meshes collected from the simulated scene
-uniform vec2 trianglesTexSize;          // texture size of triangles
+uniform sampler2D trianglesTex;     // all triangles and bounding boxes collected from the simulated scene
+uniform vec4 trianglesTexSize;      // texture size of triangles
 
 // ray definition
 struct Ray {
-    vec3 origin, direction;
+    vec3 origin;
+    vec3 direction;
+    vec3 inv_direction;
+    int sign[3];
 };
+
+Ray makeRay(vec3 origin, vec3 direction) {
+    vec3 inv_direction = vec3(1.0) / direction;
+    return Ray(
+        origin,
+        direction,
+        inv_direction,
+        int[3] (int(inv_direction.x < 0.0),
+                int(inv_direction.y < 0.0),
+                int(inv_direction.z < 0.0)));
+}
 
 // triangle definition
 struct Triangle {
-    vec3 v0;        // vertex A
-    vec3 v1;        // vertex B
-    vec3 v2;        // vertex C
-    vec3 center;    // centroid
-    vec3 normal;    // normal
+    vec3 v0, v1, v2;    // vertices A, B and C
+    vec3 center;        // centroid
+    vec3 normal;        // normal
 };
 
-float getTexData(int i, int j) {
-    return texelFetch(trianglesTex, ivec2(i,j), 0).r;
+// box definition
+struct Box {
+    vec3 aabb[2];    // Bottom left and Top right vertices
+};
+
+// get data element from texture
+float getTexData(sampler2D tex, int i, int j) {
+    return texelFetch(tex, ivec2(i,j), 0).r;
 }
 
-Triangle getTriangleData(int idx) {
+// get triangle data from texture
+Triangle getTriangleData(sampler2D tex, int idx) {
     Triangle triangle;
-    triangle.v0     = vec3(getTexData(idx,0), getTexData(idx,1), getTexData(idx,2));
-    triangle.v1     = vec3(getTexData(idx,3), getTexData(idx,4), getTexData(idx,5));
-    triangle.v2     = vec3(getTexData(idx,6), getTexData(idx,7), getTexData(idx,8));
-    triangle.center = vec3(getTexData(idx,9), getTexData(idx,10), getTexData(idx,11));
-    triangle.normal = vec3(getTexData(idx,12), getTexData(idx,13), getTexData(idx,14));
+    triangle.v0     = vec3(getTexData(tex, idx, 0),     getTexData(tex, idx, 1),    getTexData(tex, idx, 2));
+    triangle.v1     = vec3(getTexData(tex, idx, 3),     getTexData(tex, idx, 4),    getTexData(tex, idx, 5));
+    triangle.v2     = vec3(getTexData(tex, idx, 6),     getTexData(tex, idx, 7),    getTexData(tex, idx, 8));
+    triangle.center = vec3(getTexData(tex, idx, 9),     getTexData(tex, idx, 10),   getTexData(tex, idx, 11));
+    triangle.normal = vec3(getTexData(tex, idx, 12),    getTexData(tex, idx, 13),   getTexData(tex, idx, 14));
     return triangle;
+}
+
+// get box data from texture
+Box getBoxData(sampler2D tex, int idx) {
+    Box box;
+    box.aabb[0]     = vec3(getTexData(tex, idx, 0),     getTexData(tex, idx, 1),    getTexData(tex, idx, 2));
+    box.aabb[1]     = vec3(getTexData(tex, idx, 3),     getTexData(tex, idx, 4),    getTexData(tex, idx, 5));
+    return box;
+}
+
+// check if the point is within the bounding box
+bool boxContainsPoint(Box box, vec3 p) {
+    if ((box.aabb[0].x <= p.x) && (p.x <= box.aabb[1].x)
+        && (box.aabb[0].y <= p.y) && (p.y <= box.aabb[1].y)
+        && (box.aabb[0].z <= p.z) && (p.z <= box.aabb[1].z))
+        return true;
+
+    return false;
+}
+
+// Ray-AABB (axis-aligned bounding box) intersection algorithm
+// source: https://bit.ly/2oCdyEP
+bool rayIntersectsBox(Ray ray, Box box)
+{
+    float tmin  = (box.aabb[ray.sign[0]    ].x - ray.origin.x) * ray.inv_direction.x;
+    float tmax  = (box.aabb[1 - ray.sign[0]].x - ray.origin.x) * ray.inv_direction.x;
+    float tymin = (box.aabb[ray.sign[1]    ].y - ray.origin.y) * ray.inv_direction.y;
+    float tymax = (box.aabb[1 - ray.sign[1]].y - ray.origin.y) * ray.inv_direction.y;
+    float tzmin = (box.aabb[ray.sign[2]    ].z - ray.origin.z) * ray.inv_direction.z;
+    float tzmax = (box.aabb[1 - ray.sign[2]].z - ray.origin.z) * ray.inv_direction.z;
+
+    tmin = max(max(tmin, tymin), tzmin);
+    tmax = min(min(tmax, tymax), tzmax);
+
+    return (tmin < tmax);
 }
 
 // Möller–Trumbore ray-triangle intersection algorithm
@@ -120,7 +174,7 @@ vec4 primaryReflections() {
 
 // ============================================================================================================================
 
-// secondary reflections: ray-triangle intersection
+// secondary reflections: ray-box and ray-triangle intersection
 vec4 secondaryReflections(vec4 firstR) {
 
     // calculate the reflection direction for an incident vector
@@ -130,43 +184,55 @@ vec4 secondaryReflections(vec4 firstR) {
     vec3 reflectedDir = reflect(-worldIncident, nWorldNormal);
 
     // set current ray
-    Ray ray = Ray(worldPos, reflectedDir);
+    Ray ray = makeRay(worldPos, reflectedDir);
 
     // perform ray-triangle intersection only for pixels with valid normal values
     vec4 output = vec4(0,0,0,1);
+
     if (firstR.z > 0) {
 
-        bool intersected = false;
+        // test ray-box intersection
+        bool triangleIntersected = false;
+        for (int i = int(trianglesTexSize.y); triangleIntersected == false, i < int(trianglesTexSize.z); i++)
+        {
+            Box box = getBoxData(trianglesTex, i);
+            bool boxIntersected = !boxContainsPoint(box, ray.origin) && rayIntersectsBox(ray, box);
 
-        // test ray-triangle intersection
-        Triangle tri;
-        for (int idx = 0; intersected == false, idx < trianglesTexSize.x; idx++) {
-            tri = getTriangleData(idx);
-            intersected = rayIntersectsTriangle(ray, tri);
-        }
+            if (boxIntersected) {
+                // test ray-triangle intersection
+                int j = (i - int(trianglesTexSize.y) + int(trianglesTexSize.x));
 
-        // if intersected, calculates the distance and normal values
-        if (intersected) {
+                int idx0 = int(getTexData(trianglesTex, j + 0, 0));
+                int idx1 = int(getTexData(trianglesTex, j + 1, 0));
 
-            // distance calculation
-            float reverbDistance = length(ray.origin - tri.center);
-            float nReverbDistance = reverbDistance / farPlane;
+                Triangle tri;
+                for (int k = idx0; triangleIntersected == false, k < idx1; k++) {
+                    tri = getTriangleData(trianglesTex, k);
+                    triangleIntersected = rayIntersectsTriangle(ray, tri);
+                }
 
-            // normal calculation
-            vec3 nTrianglePos = normalize(cameraPos - tri.center);
-            vec3 nTriangleNormal = normalize(tri.normal);
+                // if triangle is intersected, calculates the distance and normal values
+                if (triangleIntersected) {
+                    // distance calculation
+                    float reverbDistance = length(ray.origin - tri.center);
+                    float nReverbDistance = reverbDistance / farPlane;
 
-            // presents the normal and distance data as matrix
-            if (nReverbDistance <= 1) {
-                if (drawDistance)   output.y = nReverbDistance;
-                if (drawNormal)     output.z = abs(dot(nTrianglePos, nTriangleNormal));
+                    // normal calculation
+                    vec3 nTrianglePos = normalize(cameraPos - tri.center);
+                    vec3 nTriangleNormal = normalize(tri.normal);
+
+                    // presents the normal and distance data as matrix
+                    if (nReverbDistance <= 1) {
+                        if (drawDistance)   output.y = nReverbDistance;
+                        if (drawNormal)     output.z = abs(dot(nTrianglePos, nTriangleNormal));
+                    }
+                }
             }
         }
-   }
+    }
 
     return output;
 }
-
 // ============================================================================================================================
 
 void main() {
@@ -176,6 +242,7 @@ void main() {
     // output: secondary reflections by ray-tracing
     vec4 secndR = secondaryReflections(firstR);
 
-    // gl_FragData[0] = firstR;
-    gl_FragData[0] = secndR;
+    // TODO: unify primary + secondary reflections
+    gl_FragData[0] = firstR;
+    // gl_FragData[0] = secndR;
 }

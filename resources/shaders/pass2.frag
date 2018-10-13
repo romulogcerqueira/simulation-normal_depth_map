@@ -1,12 +1,11 @@
 #version 130
 
-uniform sampler2D firstReflectionTex;   // first reflections by rasterization
-uniform vec2 rttTexSize;                // texture size of RTTs
+uniform sampler2D reflectionsTex;   // first and second reflections from first pass
+uniform vec2 reflectionsTexSize;    // reflections texture size
 
 void main() {
-    // primary reflections by rasterization
-    vec4 primaryRefl = texture2D(firstReflectionTex, gl_FragCoord.xy / rttTexSize);
+    vec4 reflections = texture2D(reflectionsTex, gl_FragCoord.xy / reflectionsTexSize);
 
-    gl_FragData[0] = primaryRefl;
+    gl_FragData[0] = reflections;
 
 }

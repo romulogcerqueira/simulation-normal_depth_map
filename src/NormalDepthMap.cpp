@@ -96,23 +96,25 @@ void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     // collect all triangles of scene
     _normalDepthMapNode->accept(_visitor);
 
-    // sort the scene's triangles in ascending order
+    // sort the scene's triangles in ascending order (for each model)
     std::vector<Triangle> triangles = _visitor.getTriangles();
-    std::sort(triangles.begin(), triangles.end());
+    std::vector<uint> trianglesRef = _visitor.getTrianglesRef();
+    std::vector<BoundingBox> bboxes = _visitor.getBoundingBoxes();
 
-    std::cout << "Number of triangles: " << triangles.size() << std::endl;
-
-    // convert triangles to osg texture
+    // convert triangles (data + reference) to osg texture
     osg::ref_ptr<osg::Texture2D> trianglesTexture;
-    triangles2texture(triangles, trianglesTexture);
+    triangles2texture(triangles, trianglesRef, bboxes, trianglesTexture);
 
-    // pass the triangles data to GLSL as uniform
+    // pass the triangles (data + reference) to GLSL as uniform
     osg::ref_ptr<osg::StateSet> pass1state = _normalDepthMapNode->getChild(0)->getOrCreateStateSet();
+
     pass1state->addUniform(new osg::Uniform(osg::Uniform::SAMPLER_2D, "trianglesTex"));
     pass1state->setTextureAttributeAndModes(0, trianglesTexture, osg::StateAttribute::ON);
 
-    pass1state->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC2, "trianglesTexSize"));
-    pass1state->getUniform("trianglesTexSize")->set(osg::Vec2(  trianglesTexture->getTextureWidth() * 1.0,
+    pass1state->addUniform(new osg::Uniform(osg::Uniform::FLOAT_VEC4, "trianglesTexSize"));
+    pass1state->getUniform("trianglesTexSize")->set(osg::Vec4(  triangles.size() * 1.0,
+                                                                (triangles.size() + trianglesRef.size()) * 1.0,
+                                                                trianglesTexture->getTextureWidth() * 1.0,
                                                                 trianglesTexture->getTextureHeight() * 1.0));
 }
 
