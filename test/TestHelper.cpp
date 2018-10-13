@@ -113,10 +113,6 @@ void test_helper::makeDemoScene2(osg::ref_ptr<osg::Group> root) {
     osg::Geode* geode = new osg::Geode();
     osg::ShapeDrawable* shape = new osg::ShapeDrawable();
 
-    // shape = new osg::ShapeDrawable(new osg::Box(osg::Vec3(0.0f, -2.0f, 0.0f), 30, 0.1f, 30), hints);
-    // shape->setColor(osg::Vec4(0.5f, 0.5f, 0.7f, 1.0f));
-    // geode->addDrawable(shape);
-
     shape = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(-3.0f, 0.0f, 0.0f), radius), hints);
     shape->setColor(osg::Vec4(0.6f, 0.8f, 0.8f, 1.0f));
     geode->addDrawable(shape);

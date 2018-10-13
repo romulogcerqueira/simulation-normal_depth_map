@@ -182,50 +182,50 @@ void checkDepthValueRadialVariation(cv::Mat3f image, uint id) {
                                     groundTruthVector[id].end());
 }
 
-// BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
-//     osg::ref_ptr<osg::Geode> scene = new osg::Geode();
-//     osg::ref_ptr<osg::Shape> box;
-//     uint numberSphere = 100;
-//     double multi = 2;
-//     double boxSize = 5;
-//     double distance = 100;
-//     double maxRange = 200;
-//
-//     for (uint i = 0; i < numberSphere; ++i) {
-//         box = new osg::Box(osg::Vec3(i * multi, 0, -distance), boxSize);
-//         scene->addDrawable(new osg::ShapeDrawable(box));
-//         box = new osg::Box(osg::Vec3(i * -multi, 0, -distance), boxSize);
-//         scene->addDrawable(new osg::ShapeDrawable(box));
-//         box = new osg::Box(osg::Vec3(0, i * -multi, -distance), boxSize);
-//         scene->addDrawable(new osg::ShapeDrawable(box));
-//         box = new osg::Box(osg::Vec3(0, i * multi, -distance), boxSize);
-//         scene->addDrawable(new osg::ShapeDrawable(box));
-//     }
-//
-//     NormalDepthMap normalDepthMap(maxRange);
-//     normalDepthMap.setDrawNormal(false);
-//     normalDepthMap.addNodeChild(scene);
-//
-//     uint sizeVector = 3;
-//     double fovys[] = {150, 120, 20};
-//     double fovxs[] = {20, 120, 150};
-//     uint heightSize[] = {500, 500, 500};
-//
-//     for (uint j = 0; j < sizeVector; ++j) {
-//         ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0,
-//                                        fovxs[j] * M_PI / 180.0,
-//                                        heightSize[j]);
-//         capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
-//         osg::ref_ptr<osg::Image> osgImage =
-//                       capture.grabImage(normalDepthMap.getNormalDepthMapNode());
-//
-//         cv::Mat3f cvImage(osgImage->t(), osgImage->s());
-//         cvImage.data = osgImage->data();
-//         cvImage = cvImage.clone();
-//         cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR, CV_32FC3);
-//         cv::flip(cvImage, cvImage, 0);
-//         checkDepthValueRadialVariation(cvImage, j);
-//     }
-// }
+BOOST_AUTO_TEST_CASE(depthValueRadialVariation_testCase) {
+    osg::ref_ptr<osg::Geode> scene = new osg::Geode();
+    osg::ref_ptr<osg::Shape> box;
+    uint numberSphere = 100;
+    double multi = 2;
+    double boxSize = 5;
+    double distance = 100;
+    double maxRange = 200;
+
+    for (uint i = 0; i < numberSphere; ++i) {
+        box = new osg::Box(osg::Vec3(i * multi, 0, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(i * -multi, 0, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(0, i * -multi, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+        box = new osg::Box(osg::Vec3(0, i * multi, -distance), boxSize);
+        scene->addDrawable(new osg::ShapeDrawable(box));
+    }
+
+    NormalDepthMap normalDepthMap(maxRange);
+    normalDepthMap.setDrawNormal(false);
+    normalDepthMap.addNodeChild(scene);
+
+    uint sizeVector = 3;
+    double fovys[] = {150, 120, 20};
+    double fovxs[] = {20, 120, 150};
+    uint heightSize[] = {500, 500, 500};
+
+    for (uint j = 0; j < sizeVector; ++j) {
+        ImageViewerCaptureTool capture(fovys[j] * M_PI / 180.0,
+                                       fovxs[j] * M_PI / 180.0,
+                                       heightSize[j]);
+        capture.setBackgroundColor(osg::Vec4d(0, 0, 0, 0));
+        osg::ref_ptr<osg::Image> osgImage =
+                      capture.grabImage(normalDepthMap.getNormalDepthMapNode());
+
+        cv::Mat3f cvImage(osgImage->t(), osgImage->s());
+        cvImage.data = osgImage->data();
+        cvImage = cvImage.clone();
+        cv::cvtColor(cvImage, cvImage, cv::COLOR_RGB2BGR, CV_32FC3);
+        cv::flip(cvImage, cvImage, 0);
+        checkDepthValueRadialVariation(cvImage, j);
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END();

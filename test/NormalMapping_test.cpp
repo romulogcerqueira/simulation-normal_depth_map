@@ -156,31 +156,31 @@ osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
-    normalGroundTruth.at<float>(0,0) = 0.78039;
-    normalGroundTruth.at<float>(1,0) = 0.85490;
-    normalGroundTruth.at<float>(2,0) = 0.85490;
-    normalGroundTruth.at<float>(3,0) = 0.89411;
-    normalGroundTruth.at<float>(4,0) = 0.92941;
-    normalGroundTruth.at<float>(0,1) = 0.87843;
-    normalGroundTruth.at<float>(1,1) = 0.92156;
-    normalGroundTruth.at<float>(2,1) = 0.92156;
-    normalGroundTruth.at<float>(3,1) = 0.93333;
-    normalGroundTruth.at<float>(4,1) = 0.92156;
-    normalGroundTruth.at<float>(0,2) = 0.96078;
-    normalGroundTruth.at<float>(1,2) = 0.97647;
-    normalGroundTruth.at<float>(2,2) = 0.96470;
-    normalGroundTruth.at<float>(3,2) = 0.88627;
-    normalGroundTruth.at<float>(4,2) = 0.89803;
-    normalGroundTruth.at<float>(0,3) = 0.98823;
-    normalGroundTruth.at<float>(1,3) = 0.98431;
-    normalGroundTruth.at<float>(2,3) = 0.93333;
-    normalGroundTruth.at<float>(3,3) = 0.86666;
-    normalGroundTruth.at<float>(4,3) = 0.90980;
-    normalGroundTruth.at<float>(0,4) = 0.98823;
-    normalGroundTruth.at<float>(1,4) = 0.96470;
-    normalGroundTruth.at<float>(2,4) = 0.87058;
-    normalGroundTruth.at<float>(3,4) = 0.83137;
-    normalGroundTruth.at<float>(4,4) = 0.95686;
+    normalGroundTruth.at<float>(0,0) = 0.76861;
+    normalGroundTruth.at<float>(0,1) = 0.77602;
+    normalGroundTruth.at<float>(0,2) = 0.84450;
+    normalGroundTruth.at<float>(0,3) = 0.83076;
+    normalGroundTruth.at<float>(0,4) = 0.79877;
+    normalGroundTruth.at<float>(1,0) = 0.75877;
+    normalGroundTruth.at<float>(1,1) = 0.77198;
+    normalGroundTruth.at<float>(1,2) = 0.80529;
+    normalGroundTruth.at<float>(1,3) = 0.79267;
+    normalGroundTruth.at<float>(1,4) = 0.83803;
+    normalGroundTruth.at<float>(2,0) = 0.72059;
+    normalGroundTruth.at<float>(2,1) = 0.69296;
+    normalGroundTruth.at<float>(2,2) = 0.76993;
+    normalGroundTruth.at<float>(2,3) = 0.90488;
+    normalGroundTruth.at<float>(2,4) = 0.87486;
+    normalGroundTruth.at<float>(3,0) = 0.61404;
+    normalGroundTruth.at<float>(3,1) = 0.68712;
+    normalGroundTruth.at<float>(3,2) = 0.85348;
+    normalGroundTruth.at<float>(3,3) = 0.92850;
+    normalGroundTruth.at<float>(3,4) = 0.87384;
+    normalGroundTruth.at<float>(4,0) = 0.62777;
+    normalGroundTruth.at<float>(4,1) = 0.78682;
+    normalGroundTruth.at<float>(4,2) = 0.92606;
+    normalGroundTruth.at<float>(4,3) = 0.95470;
+    normalGroundTruth.at<float>(4,4) = 0.80682;
 
     return normalGroundTruth;
 }
