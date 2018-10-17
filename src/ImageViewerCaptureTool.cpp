@@ -24,8 +24,6 @@ ImageViewerCaptureTool::ImageViewerCaptureTool( double fovY, double fovX,
     double aspectRatio = width * 1.0 / height;
 
     initializeProperties(width, height);
-    _viewer->getCamera()->setComputeNearFarMode(
-                                    osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY * 180.0 / M_PI,
                                                            aspectRatio,
                                                            0.1,

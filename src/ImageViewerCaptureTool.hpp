@@ -100,6 +100,9 @@ public:
     osg::Matrix getViewMatrix()
       { return _viewer->getCamera()->getViewMatrix(); };
 
+
+      osg::ref_ptr<osgViewer::Viewer> getViewer() { return _viewer; }
+
 protected:
 
     void initializeProperties(uint width, uint height);
