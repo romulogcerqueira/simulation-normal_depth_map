@@ -3,6 +3,8 @@
 in vec3 worldPos;                   // position in world space
 in vec3 worldNormal;                // normal in world space
 in vec3 cameraPos;                  // viewer's position in world space
+in vec3 viewPos;                    // position in view space
+in vec3 viewNormal;                 // normal in view space
 in mat3 TBN;                        // TBN matrix
 
 uniform bool drawNormal;            // enable normal drawing in final shader image
@@ -17,10 +19,6 @@ uniform bool useNormalTex;          // enable normal mapping process
 
 uniform sampler2D trianglesTex;     // all triangles and bounding boxes collected from the simulated scene
 uniform vec4 trianglesTexSize;      // texture size of triangles
-
-in vec3 tangent;
-in vec3 binormal;
-in vec3 normal;
 
 // ray definition
 struct Ray {
@@ -143,24 +141,23 @@ bool rayIntersectsTriangle(Ray ray, Triangle triangle)
 
 // primary reflections: rasterization
 vec4 primaryReflections() {
-    vec3 worldIncident = cameraPos - worldPos;
-    vec3 nWorldPos = normalize(worldIncident);
-    vec3 nWorldNormal = normalize(worldNormal);
+    vec3 nViewPos = normalize(viewPos);
+    vec3 nViewNormal = normalize(viewNormal);
 
     // normal for textured scenes (by normal mapping)
     if (useNormalTex) {
         // convert Tangent space to World space with TBN matrix
         vec3 normalRGB = texture2D(normalTex, gl_TexCoord[0].xy).rgb;
         vec3 normalMap = (normalRGB * 2.0 - 1.0) * TBN;
-        nWorldNormal = normalize(normalMap);
+        nViewNormal = normalize(normalMap);
     }
 
     // material's reflectivity property
     if (reflectance > 0)
-        nWorldNormal = min(nWorldNormal * reflectance, 1.0);
+        nViewNormal = min(nViewNormal * reflectance, 1.0);
 
     // distance calculation
-    float viewDistance = length(worldIncident);
+    float viewDistance = length(viewPos);
 
     // normalize distance using range value (farPlane)
     float nViewDistance = viewDistance / farPlane;
@@ -169,7 +166,7 @@ vec4 primaryReflections() {
     vec4 output = vec4(0, 0, 0, 1);
     if (nViewDistance <= 1) {
         if (drawDistance)   output.y = nViewDistance;
-        if (drawNormal)     output.z = abs(dot(nWorldPos, nWorldNormal));
+        if (drawNormal)     output.z = abs(dot(nViewPos, nViewNormal));
     }
 
     return output;
@@ -247,9 +244,6 @@ vec4 unifiedReflections (vec4 firstR, vec4 secndR) {
     // normal calculation
     float nNormal = (firstR.z + secndR.z);
 
-    // attenuation effect of sound in the water
-    nNormal = nNormal * exp(-2 * attenuationCoeff * nDistance * farPlane);
-
     // outputs the merged data (distance + normal) for both reflections
     vec4 output = vec4(0, 0, 0, 1);
     if (nDistance <= 1) {
@@ -273,6 +267,10 @@ void main() {
         // unified reflections (primary + secondary)
         output = unifiedReflections(firstR, secndR);
     }
+
+    // attenuation effect of sound in the water
+    float value = output.z * exp(-2 * attenuationCoeff * output.y * farPlane);
+    output.z = value;
 
     // presents the final sonar image
     gl_FragData[0] = output;
