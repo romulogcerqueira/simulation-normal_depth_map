@@ -15,8 +15,8 @@
 
 namespace normal_depth_map {
 
-#define SHADER_VERT "normal_depth_map/shaders/pass1.vert"
-#define SHADER_FRAG "normal_depth_map/shaders/pass1.frag"
+#define SHADER_VERT "normal_depth_map/shaders/shader.vert"
+#define SHADER_FRAG "normal_depth_map/shaders/shader.frag"
 
 NormalDepthMap::NormalDepthMap(float maxRange ) {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange);
