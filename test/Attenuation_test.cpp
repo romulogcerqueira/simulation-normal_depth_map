@@ -26,76 +26,76 @@ BOOST_AUTO_TEST_CASE(attenuationCalculation_testCase){
 
 void getReferencePoints(std::vector<cv::Mat>& referencePoints) {
     cv::Mat view1 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
-    view1.at<float>(0,0) = 0.1019;
-    view1.at<float>(0,1) = 0.0666;
-    view1.at<float>(0,2) = 0.0745;
-    view1.at<float>(0,3) = 0.0823;
-    view1.at<float>(1,0) = 0.1098;
-    view1.at<float>(1,1) = 0.0627;
-    view1.at<float>(1,2) = 0.0705;
-    view1.at<float>(1,3) = 0.0745;
-    view1.at<float>(2,0) = 0.1176;
-    view1.at<float>(2,1) = 0.0588;
-    view1.at<float>(2,2) = 0.0627;
-    view1.at<float>(2,3) = 0.0705;
-    view1.at<float>(3,0) = 0.1176;
-    view1.at<float>(3,1) = 0.0549;
-    view1.at<float>(3,2) = 0.0588;
-    view1.at<float>(3,3) = 0.0666;
+    view1.at<float>(0,0) = 0.1011;
+    view1.at<float>(0,1) = 0.0679;
+    view1.at<float>(0,2) = 0.0744;
+    view1.at<float>(0,3) = 0.0808;
+    view1.at<float>(1,0) = 0.1094;
+    view1.at<float>(1,1) = 0.0630;
+    view1.at<float>(1,2) = 0.0694;
+    view1.at<float>(1,3) = 0.0759;
+    view1.at<float>(2,0) = 0.1177;
+    view1.at<float>(2,1) = 0.0580;
+    view1.at<float>(2,2) = 0.0645;
+    view1.at<float>(2,3) = 0.0710;
+    view1.at<float>(3,0) = 0.1163;
+    view1.at<float>(3,1) = 0.0545;
+    view1.at<float>(3,2) = 0.0595;
+    view1.at<float>(3,3) = 0.0660;
 
-    cv::Mat view2 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
-    view2.at<float>(0,0) = 0.3490;
-    view2.at<float>(0,1) = 0.3490;
-    view2.at<float>(0,2) = 0.3490;
-    view2.at<float>(0,3) = 0.3490;
-    view2.at<float>(1,0) = 0.3490;
-    view2.at<float>(1,1) = 0.3490;
-    view2.at<float>(1,2) = 0.3490;
-    view2.at<float>(1,3) = 0.3490;
-    view2.at<float>(2,0) = 0.3490;
-    view2.at<float>(2,1) = 0.3490;
-    view2.at<float>(2,2) = 0.3490;
-    view2.at<float>(2,3) = 0.3490;
-    view2.at<float>(3,0) = 0.3490;
-    view2.at<float>(3,1) = 0.3490;
-    view2.at<float>(3,2) = 0.3490;
-    view2.at<float>(3,3) = 0.3450;
+    cv::Mat view2 = cv::Mat::zeros(cv::Size(4, 4), CV_32FC1);
+    view2.at<float>(0,0) = 0.3481;
+    view2.at<float>(0,1) = 0.3480;
+    view2.at<float>(0,2) = 0.3480;
+    view2.at<float>(0,3) = 0.3479;
+    view2.at<float>(1,0) = 0.3479;
+    view2.at<float>(1,1) = 0.3478;
+    view2.at<float>(1,2) = 0.3477;
+    view2.at<float>(1,3) = 0.3476;
+    view2.at<float>(2,0) = 0.3476;
+    view2.at<float>(2,1) = 0.3475;
+    view2.at<float>(2,2) = 0.3474;
+    view2.at<float>(2,3) = 0.3473;
+    view2.at<float>(3,0) = 0.3474;
+    view2.at<float>(3,1) = 0.3473;
+    view2.at<float>(3,2) = 0.3472;
+    view2.at<float>(3,3) = 0.3471;
 
     cv::Mat view3 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
-    view3.at<float>(0,0) = 0.3490;
-    view3.at<float>(0,1) = 0.3490;
-    view3.at<float>(0,2) = 0.3529;
-    view3.at<float>(0,3) = 0.3529;
-    view3.at<float>(1,0) = 0.3490;
-    view3.at<float>(1,1) = 0.3490;
-    view3.at<float>(1,2) = 0.3490;
-    view3.at<float>(1,3) = 0.3529;
-    view3.at<float>(2,0) = 0.3490;
-    view3.at<float>(2,1) = 0.3490;
-    view3.at<float>(2,2) = 0.3490;
-    view3.at<float>(2,3) = 0.3490;
-    view3.at<float>(3,0) = 0.3490;
+    view3.at<float>(0,0) = 0.3501;
+    view3.at<float>(0,1) = 0.3507;
+    view3.at<float>(0,2) = 0.3513;
+    view3.at<float>(0,3) = 0.3519;
+    view3.at<float>(1,0) = 0.3495;
+    view3.at<float>(1,1) = 0.3501;
+    view3.at<float>(1,2) = 0.3507;
+    view3.at<float>(1,3) = 0.3513;
+    view3.at<float>(2,0) = 0.3489;
+    view3.at<float>(2,1) = 0.3495;
+    view3.at<float>(2,2) = 0.3501;
+    view3.at<float>(2,3) = 0.3507;
+    view3.at<float>(3,0) = 0.3483;
     view3.at<float>(3,1) = 0.3490;
-    view3.at<float>(3,2) = 0.3490;
-    view3.at<float>(3,3) = 0.3490;
+    view3.at<float>(3,2) = 0.3496;
+    view3.at<float>(3,3) = 0.3501;
 
     cv::Mat view4 = cv::Mat::zeros(cv::Size(4,4), CV_32FC1);
-    view4.at<float>(0,0) = 0.5529;
-    view4.at<float>(0,1) = 0.5529;
-    view4.at<float>(0,2) = 0.5529;
-    view4.at<float>(0,3) = 0.5529;
-    view4.at<float>(1,0) = 0.5529;
-    view4.at<float>(1,1) = 0.5529;
-    view4.at<float>(1,2) = 0.5529;
-    view4.at<float>(1,3) = 0.5529;
-    view4.at<float>(2,0) = 0.5529;
-    view4.at<float>(2,1) = 0.5529;
-    view4.at<float>(2,2) = 0.5529;
-    view4.at<float>(2,3) = 0.5529;
-    view4.at<float>(3,0) = 0.5529;
-    view4.at<float>(3,1) = 0.5529;
-    view4.at<float>(3,2) = 0.5529;
-    view4.at<float>(3,3) = 0.5529;
+    view4.at<float>(0,0) = 0.5521;
+    view4.at<float>(0,1) = 0.5522;
+    view4.at<float>(0,2) = 0.5522;
+    view4.at<float>(0,3) = 0.5523;
+    view4.at<float>(1,0) = 0.5519;
+    view4.at<float>(1,1) = 0.5520;
+    view4.at<float>(1,2) = 0.5521;
+    view4.at<float>(1,3) = 0.5522;
+    view4.at<float>(2,0) = 0.5518;
+    view4.at<float>(2,1) = 0.5519;
+    view4.at<float>(2,2) = 0.5519;
+    view4.at<float>(2,3) = 0.5520;
+    view4.at<float>(3,0) = 0.5516;
+    view4.at<float>(3,1) = 0.5517;
+    view4.at<float>(3,2) = 0.5518;
+    view4.at<float>(3,3) = 0.5519;
 
     referencePoints.push_back(view1);
     referencePoints.push_back(view2);
@@ -106,8 +106,8 @@ void getReferencePoints(std::vector<cv::Mat>& referencePoints) {
 BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     // sonar parameters
     float maxRange = 50;            // 50 meters
-    float fovX = M_PI / 6;    // 30 degrees
-    float fovY = M_PI / 6;    // 30 degrees
+    float fovX = M_PI / 6;          // 30 degrees
+    float fovY = M_PI / 6;          // 30 degrees
 
     // attenuation coefficient
     double frequency = 700.0;       // kHz
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
         cv::Mat localPoints;
         cv::extractChannel(attShader(roi), localPoints, 0);
         roundMat(localPoints, 4);
-        BOOST_CHECK(areEquals(localPoints, referencePoints[i]) == true);
+        BOOST_CHECK(areEqualImages(localPoints, referencePoints[i]) == true);
 
         // output
         cv::Mat compShader, compSonar;

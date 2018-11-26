@@ -1,108 +1,128 @@
 #ifndef SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_
 #define SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_
 
+// OSG includes
 #include <osgViewer/Viewer>
+#include <osg/Texture2D>
 
 namespace normal_depth_map {
 
 /**
- * @brief Capture the osg::Image from a node scene without show the render window
- *
- *  Makes the osg::image from the osg::node scene without to show a GUI.
+ * Capture the osg image from a node scene without GUI presentation.
  */
-
 class WindowCaptureScreen: public osg::Camera::DrawCallback {
 public:
 
     /**
-     * @brief This class should only be constructed by ImageViewerCaptureTool.
+     * This class allow access raw data image from the viewer with callback function.
      *
-     * This class allow access raw data image from the viewer, like float value, with call back function;
-     *
-     *  @param gc: it is a pointer to viewer GraphicsContext
+     * @param gc: viewer's graphics context.
+     * @param tex: RTT buffer.
      */
-    WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gc);
-    ~WindowCaptureScreen();
+	WindowCaptureScreen(osg::ref_ptr<osg::GraphicsContext> gfxc, osg::Texture2D *tex);
+	~WindowCaptureScreen();
 
     /**
-     * @brief Gets the osg::image from the call back operator
+     * Read the osg image RTT buffer, and synchronizes the osg threads before return the image.
      *
-     * This method gets the osg::image from the call back, and synchronizes the OSG threats before return the image.
-     *
-     *  @return osg::Image: it is return a image from the scene with defined camera and view parameters.
+     * @return the osg image from the scene with defined camera and view parameters.
      */
-    osg::ref_ptr<osg::Image> captureImage();
-    osg::ref_ptr<osg::Image> getDepthBuffer();
+	osg::ref_ptr<osg::Image> captureImage();
 
 private:
 
     /**
-     * @brief Call back operator to capture the image raw data in float resolution;
-     *
-     * This operator overrides osg::Camera::DrawCallback to get the image in float resolution;
+     * Overload function to read the buffer and store on osg image.
      */
     void operator ()(osg::RenderInfo& renderInfo) const;
 
+    // threads to control the read/write access of rendered osg image
     OpenThreads::Mutex *_mutex;
     OpenThreads::Condition *_condition;
+
+    // rendered osg image
     osg::ref_ptr<osg::Image> _image;
-    osg::ref_ptr<osg::Image> _depth_buffer;
+
+    // RTT buffer
+    osg::ref_ptr<osg::Texture2D> _tex;
 };
 
 class ImageViewerCaptureTool {
 public:
+    /**
+     * This constructor generates a viewer to render the osg image without GUI.
+     *
+     * @param width: image columns (in pixels).
+     * @param height: image rows (in pixels).
+     */
+    ImageViewerCaptureTool( uint width = 640,
+                            uint height = 480);
 
     /**
-     * @brief This class generate a hide viewer to get the osg::image without
-     *  GUI.
+     * This constructor class generate an osg image according FOV-Y, FOV-X and height/width resolution.
      *
-     *  @param width: Width to generate the image
-     *  @param height: height to generate the image
+     * @param fovY: vertical field of view (in radians).
+     * @param fovX: horizontal field of view (in radians).
+     * @param value: height/width to generate the image.
+     * @param isHeight: indicates if value is height or width.
      */
-    ImageViewerCaptureTool(uint width = 640, uint height = 480);
-
-    /**
-     * @brief This constructor class generate a image according fovy, fovx and
-     *  height resolution.
-     *
-     *  @param fovy: vertical field of view (in radians)
-     *  @param fovx: horizontal field of view (in radians)
-     *  @param height: height to generate the image
-     */
-
-    ImageViewerCaptureTool( double fovY, double fovX, uint value,
+    ImageViewerCaptureTool( double fovY,
+                            double fovX,
+                            uint value,
                             bool isHeight = true);
 
     /**
-     * @brief This function gets the main node scene and generate a image with
-     * float values
+     * Capture the scene (normal depth map) from camera's viewpoint and render it to osg image.
      *
-     *  @param node: node with the main scene
+     * @param node: the normal depth map node.
+     * @return the rendered image from main node.
      */
-
     osg::ref_ptr<osg::Image> grabImage(osg::ref_ptr<osg::Node> node);
 
-    /**
-     * @brief This function gets the image create by depth buffer
-     *
-     */
+    void setCameraPosition(const osg::Vec3d &eye, const osg::Vec3d &center, const osg::Vec3d &up) {
+        _viewer->getCamera()->setViewMatrixAsLookAt(eye, center, up);
+    }
 
-    osg::ref_ptr<osg::Image> getDepthBuffer();
+    void getCameraPosition(osg::Vec3d &eye, osg::Vec3d &center, osg::Vec3d &up) {
+        _viewer->getCamera()->getViewMatrixAsLookAt(eye, center, up);
+    }
 
-    void setCameraPosition( const osg::Vec3d& eye, const osg::Vec3d& center,
-                            const osg::Vec3d& up);
-    void getCameraPosition(osg::Vec3d& eye, osg::Vec3d& center, osg::Vec3d& up);
-    void setBackgroundColor(osg::Vec4d color);
-
-    void setViewMatrix (osg::Matrix matrix)
-      { _viewer->getCamera()->setViewMatrix(matrix); };
-
-    osg::Matrix getViewMatrix()
-      { return _viewer->getCamera()->getViewMatrix(); };
+    void setBackgroundColor(osg::Vec4d color) {
+        _viewer->getCamera()->setClearColor(color);
+    }
 
 protected:
+    /**
+     * Set the viewer with desired parameters.
+     *
+     * @param width: image columns (in pixels).
+     * @param height: image rows (in pixels).
+     * @param fovY: vertical field-of-view.
+     */
+    void setupViewer(uint width, uint height, double fovY = (M_PI / 3));
 
-    void initializeProperties(uint width, uint height);
+    /**
+     * Create float texture to be rendered in FBO.
+     *
+     * @param width: texture columns (in pixels).
+     * @param height: texture rows (in pixels).
+     * @return the FBO texture.
+     */
+    osg::Texture2D* createFloatTexture( uint width, uint height );
+
+    /**
+     * Setup a camera with an attached RTT texture.
+     *
+     * @param cam: the target camera.
+     * @param buffer: desired buffer component.
+     * @param tex: the FBO texture.
+     * @param gfxc: the graphics context.
+     * @return the osg camera.
+     */
+    osg::Camera* createRTTCamera(   osg::Camera* cam,
+                                    osg::Camera::BufferComponent buffer,
+                                    osg::Texture2D* tex,
+                                    osg::GraphicsContext *gfxc );
 
     osg::ref_ptr<WindowCaptureScreen> _capture;
     osg::ref_ptr<osgViewer::Viewer> _viewer;
@@ -110,4 +130,4 @@ protected:
 
 } /* namespace normal_depth_map */
 
-#endif /* SIMULATION_NORMAL_DEPTH_MAP_SRC_IMAGECAPTURETOOL_HPP_ */
+#endif

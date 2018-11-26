@@ -1,15 +1,16 @@
 <package>
 	<description brief="">
-		
+
 	</description>
 	<author>Tiago Trocoli/trocolit2@gmail.com</author>
+	<maintainer>Rômulo Cerqueira/romulogcerqueira@gmail.com</maintainer>
 	<license>
 	</license>
 	<url>http://</url>
 	<logo>http://</logo>
 	<depend package="base/cmake" />
 	<tags>needs_ops</tags>
-	
+
 	<!-- rock library dependencies -->
 	<depend package="base/types" />
 

@@ -126,8 +126,9 @@ osg::ref_ptr<osg::Group> createSimpleScene() {
 osg::ref_ptr<osg::Group> createNormalMapSimpleScene() {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
-    stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
-    stateset->addUniform(new osg::Uniform("normalTexture", TEXTURE_UNIT_NORMAL));
+    stateset->addUniform(new osg::Uniform("diffuseTex", TEXTURE_UNIT_DIFFUSE));
+    stateset->addUniform(new osg::Uniform("normalTex", TEXTURE_UNIT_NORMAL));
+    stateset->addUniform(new osg::Uniform("useNormalTex", true));
     stateset->setDataVariance(osg::Object::STATIC);
     root->setStateSet(stateset);
 
@@ -140,8 +141,9 @@ osg::ref_ptr<osg::Group> createNormalMapSimpleScene() {
 osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet();
-    stateset->addUniform(new osg::Uniform("diffuseTexture", TEXTURE_UNIT_DIFFUSE));
-    stateset->addUniform(new osg::Uniform("normalTexture", TEXTURE_UNIT_NORMAL));
+    stateset->addUniform(new osg::Uniform("diffuseTex", TEXTURE_UNIT_DIFFUSE));
+    stateset->addUniform(new osg::Uniform("normalTex", TEXTURE_UNIT_NORMAL));
+    stateset->addUniform(new osg::Uniform("useNormalTex", true));
     stateset->setDataVariance(osg::Object::STATIC);
     root->setStateSet(stateset);
 
@@ -154,31 +156,31 @@ osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
-    normalGroundTruth.at<float>(0,0) = 0.78039;
-    normalGroundTruth.at<float>(1,0) = 0.85490;
-    normalGroundTruth.at<float>(2,0) = 0.85490;
-    normalGroundTruth.at<float>(3,0) = 0.89411;
-    normalGroundTruth.at<float>(4,0) = 0.92941;
-    normalGroundTruth.at<float>(0,1) = 0.87843;
-    normalGroundTruth.at<float>(1,1) = 0.92156;
-    normalGroundTruth.at<float>(2,1) = 0.92156;
-    normalGroundTruth.at<float>(3,1) = 0.93333;
-    normalGroundTruth.at<float>(4,1) = 0.92156;
-    normalGroundTruth.at<float>(0,2) = 0.96078;
-    normalGroundTruth.at<float>(1,2) = 0.97647;
-    normalGroundTruth.at<float>(2,2) = 0.96470;
-    normalGroundTruth.at<float>(3,2) = 0.88627;
-    normalGroundTruth.at<float>(4,2) = 0.89803;
-    normalGroundTruth.at<float>(0,3) = 0.98823;
-    normalGroundTruth.at<float>(1,3) = 0.98431;
-    normalGroundTruth.at<float>(2,3) = 0.93333;
-    normalGroundTruth.at<float>(3,3) = 0.86666;
-    normalGroundTruth.at<float>(4,3) = 0.90980;
-    normalGroundTruth.at<float>(0,4) = 0.98823;
-    normalGroundTruth.at<float>(1,4) = 0.96470;
-    normalGroundTruth.at<float>(2,4) = 0.87058;
-    normalGroundTruth.at<float>(3,4) = 0.83137;
-    normalGroundTruth.at<float>(4,4) = 0.95686;
+    normalGroundTruth.at<float>(0, 0) = 0.78171;
+    normalGroundTruth.at<float>(0, 1) = 0.85307;
+    normalGroundTruth.at<float>(0, 2) = 0.85415;
+    normalGroundTruth.at<float>(0, 3) = 0.89463;
+    normalGroundTruth.at<float>(0, 4) = 0.93014;
+    normalGroundTruth.at<float>(1, 0) = 0.87977;
+    normalGroundTruth.at<float>(1, 1) = 0.92247;
+    normalGroundTruth.at<float>(1, 2) = 0.92117;
+    normalGroundTruth.at<float>(1, 3) = 0.93404;
+    normalGroundTruth.at<float>(1, 4) = 0.91973;
+    normalGroundTruth.at<float>(2, 0) = 0.96184;
+    normalGroundTruth.at<float>(2, 1) = 0.97778;
+    normalGroundTruth.at<float>(2, 2) = 0.96315;
+    normalGroundTruth.at<float>(2, 3) = 0.88583;
+    normalGroundTruth.at<float>(2, 4) = 0.90014;
+    normalGroundTruth.at<float>(3, 0) = 0.98709;
+    normalGroundTruth.at<float>(3, 1) = 0.98383;
+    normalGroundTruth.at<float>(3, 2) = 0.9328;
+    normalGroundTruth.at<float>(3, 3) = 0.86754;
+    normalGroundTruth.at<float>(3, 4) = 0.91019;
+    normalGroundTruth.at<float>(4, 0) = 0.9875;
+    normalGroundTruth.at<float>(4, 1) = 0.96486;
+    normalGroundTruth.at<float>(4, 2) = 0.87142;
+    normalGroundTruth.at<float>(4, 3) = 0.83016;
+    normalGroundTruth.at<float>(4, 4) = 0.95576;
 
     return normalGroundTruth;
 }
@@ -202,10 +204,10 @@ BOOST_AUTO_TEST_CASE(differentNormalMaps_TestCase) {
     cv::split(normalShader, normalChannels);
 
     // assert that the normal matrixes are different
-    BOOST_CHECK(areEquals(rawChannels[0], normalChannels[0]) == false);
+    BOOST_CHECK(areEqualImages(rawChannels[0], normalChannels[0]) == false);
 
     // assert that the depth matrixes are equals
-    BOOST_CHECK(areEquals(rawChannels[1], normalChannels[1]) == true);
+    BOOST_CHECK(areEqualImages(rawChannels[1], normalChannels[1]) == true);
 
     // plot sonar sample output
     cv::Mat compShader, compSonar;
@@ -242,9 +244,16 @@ BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
     cv::Mat normalRoi;
     cv::extractChannel(cvNormal(cv::Rect(160,175,5,5)), normalRoi, 0);
     roundMat(normalRoi, 5);
+
+    for (size_t i = 0; i < normalRoi.cols; i++) {
+        for(size_t j = 0; j < normalRoi.rows; j++) {
+            std::cout << "normalGroundTruth.at<float>(" << i << ", " << j << ") = " << normalRoi.at<float>(i, j) << ";" << std::endl;
+        }
+    }
+
     cv::Mat normalGroundTruth = getNormalGroundTruth();
 
-    BOOST_CHECK(areEquals(normalRoi, normalGroundTruth) == true);
+    BOOST_CHECK(areEqualImages(normalRoi, normalGroundTruth) == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
