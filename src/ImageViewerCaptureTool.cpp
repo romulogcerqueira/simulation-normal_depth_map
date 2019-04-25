@@ -27,7 +27,7 @@ ImageViewerCaptureTool::ImageViewerCaptureTool( double fovY, double fovX,
     _viewer->getCamera()->setProjectionMatrixAsPerspective(fovY * 180.0 / M_PI,
                                                            aspectRatio,
                                                            0.1,
-                                                           1000);
+                                                           10000);
 }
 
 void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
@@ -46,6 +46,7 @@ void ImageViewerCaptureTool::initializeProperties(uint width, uint height) {
     camera->setGraphicsContext(gfxc);
     camera->setDrawBuffer(GL_FRONT);
     camera->setViewport(new osg::Viewport(0, 0, width, height));
+    camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 
     // initialize the class to get the image in float data resolution
     _capture = new WindowCaptureScreen(gfxc);
