@@ -5,6 +5,11 @@ add_library(sonar_simulation SHARED
   NormalDepthMap.cpp
   Tools.cpp)
 
+target_link_libraries(
+  sonar_simulation
+  ${OPENSCENEGRAPH_LIBRARIES}
+)
+
 set(source_libs_local  sonar_simulation  ${OPENSCENEGRAPH_LIBRARIES})
 set(source_libs ${source_libs_local} PARENT_SCOPE)
 
@@ -15,7 +20,7 @@ include_directories(${PROJECT_BINARY_DIR}/generated/)
 install (TARGETS sonar_simulation
          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
-install (FILES ${PROJECT_BINARY_DIR}/generated/Definitions.hpp  
+install (FILES ${PROJECT_BINARY_DIR}/generated/Definitions.hpp
          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${CMAKE_PROJECT_NAME}/)
 
 file(GLOB header_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
