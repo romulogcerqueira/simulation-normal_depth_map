@@ -38,6 +38,8 @@ cv::Mat test_helper::drawSonarImage(cv::Mat3f image, double maxRange, double max
 
     cv::circle(imagePlotMap, centerPlot, maxRange * factor, cv::Scalar(255,255,255));
 
+    cv::flip(imagePlotMap, imagePlotMap, 0);
+
     return imagePlotMap;
 }
 
