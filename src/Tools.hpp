@@ -14,25 +14,6 @@
 namespace normal_depth_map {
 
     /**
-     * Compute underwater signal attenuation coefficient.
-     * This method is based on paper "A simplified formula for viscous and
-     * chemical absorption in sea water". The algorithm computes the attenuation
-     * coefficient that will be used on shader normal intensite return.
-     *
-     * @param frequency: sound frequency in kHz.
-     * @param temperature: water temperature in Celsius degrees.
-     * @param depth: distance from water surface in meters.
-     * @param salinity: amount of salt dissolved in a body of water in ppt.
-     * @param acidity: pH water value.
-     * @return coefficient attenuation value.
-    */
-    double underwaterSignalAttenuation( const double frequency,
-                                        const double temperature,
-                                        const double depth,
-                                        const double salinity,
-                                        const double acidity);
-
-    /**
      * Triangle definition.
     */
     struct Triangle
