@@ -31,12 +31,14 @@ cv::Mat test_helper::drawSonarImage(cv::Mat3f image, double maxRange, double max
     cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
 
     cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
+            maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
 
     cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
+            maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
 
-    cv::circle(imagePlotMap, centerPlot, maxRange * factor, cv::Scalar(255,255,255));
+    double maxAngleXDeg = maxAngleX * 180 / M_PI;
+    cv::ellipse(imagePlotMap, centerPlot, cv::Size(imagePlotMap.rows - 1, imagePlotMap.cols - 1), 90, 
+            -maxAngleXDeg, maxAngleXDeg, cv::Scalar(255, 255, 255));
 
     cv::flip(imagePlotMap, imagePlotMap, 0);
 
