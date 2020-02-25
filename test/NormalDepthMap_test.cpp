@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_SUITE(test_NormalDepthMap)
 // reference points, and map values for each view in viewPointsFromScene1
 void referencePointsFromScene(
         std::vector<std::vector<cv::Point> > *setPoints,
-        std::vector<std::vector<cv::Point3f> > *setValues) {
+        std::vector<std::vector<cv::Point2f> > *setValues) {
 
     std::vector<cv::Point> points;
     // image points in view1
@@ -62,49 +62,49 @@ void referencePointsFromScene(
     points.push_back(cv::Point(461, 36));
     setPoints->push_back(points);
 
-    std::vector<cv::Point3f> values;
+    std::vector<cv::Point2f> values;
 
     // pixel value from each point in image from view1
-    values.push_back(cv::Point3f(0.9921, 0.1853, 0));
-    values.push_back(cv::Point3f(0.2705, 0.1987, 0));
-    values.push_back(cv::Point3f(0.9058, 0.6374, 0));
-    values.push_back(cv::Point3f(0.9529, 0.6047, 0));
-    values.push_back(cv::Point3f(0.2666, 0.6164, 0));
-    values.push_back(cv::Point3f(0.1686, 0.9812, 0));
+    values.push_back(cv::Point2f(0.9921,0.1853));
+    values.push_back(cv::Point2f(0.2705,0.1987));
+    values.push_back(cv::Point2f(0.9058,0.6374));
+    values.push_back(cv::Point2f(0.9529,0.6047));
+    values.push_back(cv::Point2f(0.2666,0.6164));
+    values.push_back(cv::Point2f(0.1686,0.9812));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view2
-    values.push_back(cv::Point3f(0.0000, 0.0000, 0));
-    values.push_back(cv::Point3f(0.9098, 0.7698, 0));
-    values.push_back(cv::Point3f(1.0000, 0.1942, 0));
-    values.push_back(cv::Point3f(0.4313, 0.2047, 0));
-    values.push_back(cv::Point3f(0.1490, 0.8185, 0));
+    values.push_back(cv::Point2f(0.0000,0.0000));
+    values.push_back(cv::Point2f(0.9098,0.7698));
+    values.push_back(cv::Point2f(1.0000,0.1942));
+    values.push_back(cv::Point2f(0.4313,0.2047));
+    values.push_back(cv::Point2f(0.1490,0.8185));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view3
-    values.push_back(cv::Point3f(0.8980, 0.4632, 0));
-    values.push_back(cv::Point3f(0.8235, 0.5043, 0));
-    values.push_back(cv::Point3f(0.2000, 0.6628, 0));
-    values.push_back(cv::Point3f(0.0588, 0.6830, 0));
-    values.push_back(cv::Point3f(0.6862, 0.4759, 0));
+    values.push_back(cv::Point2f(0.9041,0.4190));
+    values.push_back(cv::Point2f(0.7557,0.4866));
+    values.push_back(cv::Point2f(0.0000,0.0000));
+    values.push_back(cv::Point2f(0.9188,0.4112));
+    values.push_back(cv::Point2f(0.8138,0.4316));
     setValues->push_back(values);
     values.clear();
 
     // pixel value from each point in image from view4
-    values.push_back(cv::Point3f(0.9647, 0.4474, 0));
-    values.push_back(cv::Point3f(1.0000, 0.4316, 0));
-    values.push_back(cv::Point3f(0.9607, 0.4486, 0));
-    values.push_back(cv::Point3f(0.0000, 0.0000, 0));
-    values.push_back(cv::Point3f(0.9529, 0.4535, 0));
+    values.push_back(cv::Point2f(0.9646,0.4474));
+    values.push_back(cv::Point2f(1.0000,0.4316));
+    values.push_back(cv::Point2f(0.9607,0.4486));
+    values.push_back(cv::Point2f(0.0000,0.0000));
+    values.push_back(cv::Point2f(0.9529,0.4535));
     setValues->push_back(values);
     values.clear();
 }
 
 BOOST_AUTO_TEST_CASE(applyShaderNormalDepthMap_TestCase) {
     std::vector<std::vector<cv::Point> > setPoints;
-    std::vector<std::vector<cv::Point3f> > setValues;
+    std::vector<std::vector<cv::Point2f> > setValues;
     referencePointsFromScene(&setPoints, &setValues);
 
     // sonar parameters
