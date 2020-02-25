@@ -156,31 +156,31 @@ osg::ref_ptr<osg::Group> createNormalMapMultiScene() {
 cv::Mat getNormalGroundTruth() {
     cv::Mat normalGroundTruth = cv::Mat::zeros(cv::Size(5,5), CV_32FC1);
 
-    normalGroundTruth.at<float>(0, 0) = 0.78171;
-    normalGroundTruth.at<float>(0, 1) = 0.85307;
-    normalGroundTruth.at<float>(0, 2) = 0.85415;
-    normalGroundTruth.at<float>(0, 3) = 0.89463;
-    normalGroundTruth.at<float>(0, 4) = 0.93014;
-    normalGroundTruth.at<float>(1, 0) = 0.87977;
-    normalGroundTruth.at<float>(1, 1) = 0.92247;
-    normalGroundTruth.at<float>(1, 2) = 0.92117;
-    normalGroundTruth.at<float>(1, 3) = 0.93404;
-    normalGroundTruth.at<float>(1, 4) = 0.91973;
-    normalGroundTruth.at<float>(2, 0) = 0.96184;
-    normalGroundTruth.at<float>(2, 1) = 0.97778;
-    normalGroundTruth.at<float>(2, 2) = 0.96315;
-    normalGroundTruth.at<float>(2, 3) = 0.88583;
-    normalGroundTruth.at<float>(2, 4) = 0.90014;
-    normalGroundTruth.at<float>(3, 0) = 0.98709;
-    normalGroundTruth.at<float>(3, 1) = 0.98383;
-    normalGroundTruth.at<float>(3, 2) = 0.9328;
-    normalGroundTruth.at<float>(3, 3) = 0.86754;
-    normalGroundTruth.at<float>(3, 4) = 0.91019;
-    normalGroundTruth.at<float>(4, 0) = 0.9875;
-    normalGroundTruth.at<float>(4, 1) = 0.96486;
-    normalGroundTruth.at<float>(4, 2) = 0.87142;
-    normalGroundTruth.at<float>(4, 3) = 0.83016;
-    normalGroundTruth.at<float>(4, 4) = 0.95576;
+    normalGroundTruth.at<float>(0, 0) = 0.47268;
+    normalGroundTruth.at<float>(0, 1) = 0.58627;
+    normalGroundTruth.at<float>(0, 2) = 0.54085;
+    normalGroundTruth.at<float>(0, 3) = 0.61948;
+    normalGroundTruth.at<float>(0, 4) = 0.70722;
+    normalGroundTruth.at<float>(1, 0) = 0.63405;
+    normalGroundTruth.at<float>(1, 1) = 0.69675;
+    normalGroundTruth.at<float>(1, 2) = 0.67159;
+    normalGroundTruth.at<float>(1, 3) = 0.71072;
+    normalGroundTruth.at<float>(1, 4) = 0.65289;
+    normalGroundTruth.at<float>(2, 0) = 0.78957;
+    normalGroundTruth.at<float>(2, 1) = 0.83504;
+    normalGroundTruth.at<float>(2, 2) = 0.74421;
+    normalGroundTruth.at<float>(2, 3) = 0.51353;
+    normalGroundTruth.at<float>(2, 4) = 0.58909;
+    normalGroundTruth.at<float>(3, 0) = 0.89582;
+    normalGroundTruth.at<float>(3, 1) = 0.82049;
+    normalGroundTruth.at<float>(3, 2) = 0.57681;
+    normalGroundTruth.at<float>(3, 3) = 0.45067;
+    normalGroundTruth.at<float>(3, 4) = 0.60042;
+    normalGroundTruth.at<float>(4, 0) = 0.87357;
+    normalGroundTruth.at<float>(4, 1) = 0.68382;
+    normalGroundTruth.at<float>(4, 2) = 0.43889;
+    normalGroundTruth.at<float>(4, 3) = 0.38974;
+    normalGroundTruth.at<float>(4, 4) = 0.72485;
 
     return normalGroundTruth;
 }
@@ -244,12 +244,6 @@ BOOST_AUTO_TEST_CASE(pixelValidation_TestCase) {
     cv::Mat normalRoi;
     cv::extractChannel(cvNormal(cv::Rect(160,175,5,5)), normalRoi, 0);
     roundMat(normalRoi, 5);
-
-    for (size_t i = 0; i < normalRoi.cols; i++) {
-        for(size_t j = 0; j < normalRoi.rows; j++) {
-            std::cout << "normalGroundTruth.at<float>(" << i << ", " << j << ") = " << normalRoi.at<float>(i, j) << ";" << std::endl;
-        }
-    }
 
     cv::Mat normalGroundTruth = getNormalGroundTruth();
 
