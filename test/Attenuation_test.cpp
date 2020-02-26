@@ -103,11 +103,13 @@ void getReferencePoints(std::vector<cv::Mat>& referencePoints) {
     referencePoints.push_back(view4);
 }
 
+const std::string SAVE_PATH_STRING = std::string("/home/romulo/Desktop/");
+
 BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     // sonar parameters
-    float maxRange = 50;            // 50 meters
-    float fovX = M_PI / 6;          // 30 degrees
-    float fovY = M_PI / 6;          // 30 degrees
+    float maxRange = 40;            // 50 meters
+    float fovX = M_PI / 3;          // 30 degrees
+    float fovY = M_PI / 3;          // 30 degrees
 
     // attenuation coefficient
     double frequency = 700.0;       // kHz
@@ -115,9 +117,15 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     double depth = 1;               // meters
     double salinity = 0;            // ppt
     double acidity = 8;             // pH
-    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity);
+    double attenuationCoeff = underwaterSignalAttenuation(frequency, temperature, depth, salinity, acidity); //     0.0131781 dB/m
 
-     // define the different camera point of views
+    std::cout << "attenuationCoeff: " << attenuationCoeff << std::endl;
+
+
+
+                                             uint height = 2000;
+
+    // define the different camera point of views
     std::vector<osg::Vec3d> eyes, centers, ups;
     viewPointsFromDemoScene(&eyes, &centers, &ups);
 
@@ -131,12 +139,23 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
     getReferencePoints(referencePoints);
 
     // display the same scene with and without underwater acoustic attenuation
-    for (uint i = 0; i < eyes.size(); ++i) {
-        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i]);
+    for (uint i = 2; i < eyes.size()-1; ++i) {
+        cv::Mat rawShader = computeNormalDepthMap(root, maxRange, fovX, fovY, 0, eyes[i], centers[i], ups[i], height);
         cv::Mat rawSonar  = drawSonarImage(rawShader, maxRange, fovX * 0.5);
 
-        cv::Mat attShader = computeNormalDepthMap(root, maxRange, fovX, fovY, attenuationCoeff, eyes[i], centers[i], ups[i]);
+        cv::Mat attShader = computeNormalDepthMap(root, maxRange, fovX, fovY, attenuationCoeff, eyes[i], centers[i], ups[i], height);
         cv::Mat attSonar  = drawSonarImage(attShader, maxRange, fovX * 0.5);
+        cv::flip(rawSonar, rawSonar, 0);
+        cv::flip(attSonar, attSonar, 0);
+
+        std::vector<int> compression_params;
+        compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+        compression_params.push_back(9);
+
+        // cv::imwrite(SAVE_PATH_STRING + "raw_shader.png", rawShader, compression_params);
+	    // cv::imwrite(SAVE_PATH_STRING + "att_shader.png", attShader, compression_params);
+        cv::imwrite(SAVE_PATH_STRING + "raw_sonar.png", rawSonar, compression_params);
+        cv::imwrite(SAVE_PATH_STRING + "att_sonar.png", attSonar, compression_params);
 
         // check with reference points
         cv::Mat localPoints;
@@ -150,6 +169,9 @@ BOOST_AUTO_TEST_CASE(attenuationDemo_testCase) {
         cv::hconcat(rawSonar, attSonar, compSonar);
         cv::imshow("shader images", compShader);
         cv::imshow("sonar images", compSonar);
+
+        cv::imshow("rawShader", rawShader);
+        cv::imshow("attShader", attShader);
         cv::waitKey();
     }
 }

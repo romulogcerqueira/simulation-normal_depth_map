@@ -32,3 +32,8 @@ rock_testsuite(Tools_core Tools_test.cpp TestHelper.cpp
     DEPS normal_depth_map
     LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
     DEPS_PKGCONFIG openscenegraph opencv)
+
+# rock_testsuite(ApplyNormalMapping_core ApplyNormalMapping.cpp
+#     DEPS normal_depth_map
+#     LIBS ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+#     DEPS_PKGCONFIG opencv)
