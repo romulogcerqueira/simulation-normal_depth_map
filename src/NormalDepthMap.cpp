@@ -12,11 +12,12 @@
 #include <osg/Uniform>
 #include <osgDB/FileUtils>
 #include <osg/ShapeDrawable>
+#include <osgUtil/Optimizer>
 
 namespace normal_depth_map {
 
-#define SHADER_VERT "normal_depth_map/shaders/pass1.vert"
-#define SHADER_FRAG "normal_depth_map/shaders/pass1.frag"
+#define SHADER_VERT "normal_depth_map/shaders/shader.vert"
+#define SHADER_FRAG "normal_depth_map/shaders/shader.frag"
 
 NormalDepthMap::NormalDepthMap(float maxRange ) {
     _normalDepthMapNode = createTheNormalDepthMapShaderNode(maxRange);
@@ -34,6 +35,10 @@ NormalDepthMap::NormalDepthMap() {
 
 void NormalDepthMap::addNodeChild(osg::ref_ptr<osg::Node> node) {
     _normalDepthMapNode->addChild(node);
+
+    // node optimizer provided by osg
+    osgUtil::Optimizer optimizer;
+    optimizer.optimize(_normalDepthMapNode);
 
     // collect all triangles of scene
     TrianglesVisitor trv;
@@ -72,6 +77,7 @@ osg::ref_ptr<osg::Group> NormalDepthMap::createTheNormalDepthMapShaderNode(
     osg::ref_ptr<osg::Group> root = new osg::Group();
     osg::ref_ptr<osg::Program> program = new osg::Program();
     osg::ref_ptr<osg::StateSet> ss = root->getOrCreateStateSet();
+
     program->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX,     osgDB::findDataFile(SHADER_VERT)));
     program->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT,   osgDB::findDataFile(SHADER_FRAG)));
     ss->setAttributeAndModes( program, osg::StateAttribute::ON );

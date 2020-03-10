@@ -31,10 +31,17 @@ cv::Mat test_helper::drawSonarImage(cv::Mat3f image, double maxRange, double max
     cv::applyColorMap(imagePlot, imagePlotMap, cv::COLORMAP_HOT);
 
     cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+            maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
 
     cv::line( imagePlotMap, centerPlot, cv::Point2f(maxRange * sin(-maxAngleX) * factor,
-    maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255), 1, CV_AA);
+            maxRange * cos(maxAngleX) * factor) + centerPlot, cv::Scalar(255,255,255), 1, CV_AA);
+
+    double maxAngleXDeg = maxAngleX * 180 / M_PI;
+    cv::ellipse(imagePlotMap, centerPlot, cv::Size(imagePlotMap.rows - 1, imagePlotMap.cols - 1), 90, 
+            -maxAngleXDeg, maxAngleXDeg, cv::Scalar(255, 255, 255));
+
+    cv::flip(imagePlotMap, imagePlotMap, 0);
+
     return imagePlotMap;
 }
 
@@ -95,7 +102,7 @@ void test_helper::makeDemoScene(osg::ref_ptr<osg::Group> root) {
     root->addChild(cylinder);
 
     osg::Geode *cone = new osg::Geode();
-    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 30, 0), 10, 10)));
+    cylinder->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 30, 0), 10, 15)));
     root->addChild(cone);
 
     osg::Geode *box = new osg::Geode();
