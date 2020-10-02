@@ -163,13 +163,13 @@ vec4 primaryReflections() {
     float nViewDistance = viewDistance / farPlane;
 
     // presents the normal and depth data as matrix
-    vec4 output = vec4(0, 0, 0, 1);
+    vec4 result = vec4(0, 0, 0, 1);
     if (nViewDistance <= 1) {
-        if (drawDistance)   output.y = nViewDistance;
-        if (drawNormal)     output.z = abs(dot(nViewPos, nViewNormal));
+        if (drawDistance)   result.y = nViewDistance;
+        if (drawNormal)     result.z = abs(dot(nViewPos, nViewNormal));
     }
 
-    return output;
+    return result;
 }
 
 // ============================================================================================================================
@@ -186,7 +186,7 @@ vec4 secondaryReflections(vec4 firstR) {
     Ray ray = makeRay(worldPos, reflectedDir);
 
     // perform ray-triangle intersection only for pixels with valid normal values
-    vec4 output = vec4(0,0,0,1);
+    vec4 result = vec4(0,0,0,1);
 
     if (firstR.z > 0) {
 
@@ -222,15 +222,15 @@ vec4 secondaryReflections(vec4 firstR) {
 
                     // presents the normal and distance data as matrix
                     if (nReverbDistance <= 1) {
-                        if (drawDistance)   output.y = nReverbDistance;
-                        if (drawNormal)     output.z = abs(dot(nTrianglePos, nTriangleNormal));
+                        if (drawDistance)   result.y = nReverbDistance;
+                        if (drawNormal)     result.z = abs(dot(nTrianglePos, nTriangleNormal));
                     }
                 }
             }
         }
     }
 
-    return output;
+    return result;
 }
 
 // ============================================================================================================================
@@ -244,13 +244,13 @@ vec4 unifiedReflections (vec4 firstR, vec4 secndR) {
     // normal calculation
     float nNormal = (firstR.z + secndR.z);
 
-    // outputs the merged data (distance + normal) for both reflections
-    vec4 output = vec4(0, 0, 0, 1);
+    // results the merged data (distance + normal) for both reflections
+    vec4 result = vec4(0, 0, 0, 1);
     if (nDistance <= 1) {
-        output.y = nDistance;
-        output.z = nNormal;
+        result.y = nDistance;
+        result.z = nNormal;
     }
-    return output;
+    return result;
 }
 
 // ============================================================================================================================
@@ -258,20 +258,20 @@ vec4 unifiedReflections (vec4 firstR, vec4 secndR) {
 void main() {
     // primary reflections by rasterization
     vec4 firstR = primaryReflections();
-    vec4 output = firstR;
+    vec4 result = firstR;
 
     if (drawReverb) {
         // secondary reflections by ray-tracing
         vec4 secndR = secondaryReflections(firstR);
 
         // unified reflections (primary + secondary)
-        output = unifiedReflections(firstR, secndR);
+        result = unifiedReflections(firstR, secndR);
     }
 
     // attenuation effect of sound in the water
-    float value = output.z * exp(-2 * attenuationCoeff * output.y * farPlane);
-    output.z = value;
+    float value = result.z * exp(-2 * attenuationCoeff * result.y * farPlane);
+    result.z = value;
 
     // presents the final sonar image
-    gl_FragData[0] = output;
+    gl_FragData[0] = result;
 }
