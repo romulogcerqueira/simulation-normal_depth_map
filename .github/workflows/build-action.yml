@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   build:
+    # test with my host machine
     runs-on: [self-hosted, linux, x64, default]
     strategy:
       fail-fast: false
