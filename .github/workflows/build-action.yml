@@ -4,9 +4,11 @@ on: [pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, default]
     strategy:
       fail-fast: false
+      matrix:
+        distro: [bionic]
 
     steps:
       - name: Setup Checkout autoproj CI
@@ -16,7 +18,7 @@ jobs:
           ssh-key: ${{ secrets.AUTOPROJ_ACTION_TOKEN }}
       - uses: ./
         with:
-          distro: bionic
+          distro: ${{ matrix.distro }}
           buildconf-url: git@github.com:romulogcerqueira/sonar_simulation.git
           packages: '${{ github.event.repository.name }}'
           seed-config: |
