@@ -35,3 +35,7 @@ jobs:
             rtt_corba_implementation: omniorb
             rtt_target: gnulinux
             cxx11: false
+            USE_PYTHON: true
+            PYTHONPATH: /usr/bin/python2.7
+            python_executable: "/usr/bin/python"
+            python_version: 2
