@@ -1,0 +1,41 @@
+name: build-action
+
+on: [pull_request]
+
+jobs:
+  build:
+    # test with my host machine
+    runs-on: [self-hosted, linux, x64, default]
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [bionic]
+
+    steps:
+      - name: Setup Checkout autoproj CI
+        uses: actions/checkout@v2
+        with:
+          repository: Brazilian-Institute-of-Robotics/bir-autoproj-action
+          ssh-key: ${{ secrets.AUTOPROJ_ACTION_TOKEN }}
+      - uses: ./
+        with:
+          distro: ${{ matrix.distro }}
+          buildconf-url: git@github.com:romulogcerqueira/sonar_simulation.git
+          packages: 'simulation/normal_depth_map'
+          seed-config: |
+            ---
+            apt_dpkg_update: 'true'
+            osdeps_mode: all
+            GITORIOUS: ssh
+            GITHUB: ssh
+            ROCK_SELECTED_FLAVOR: master
+            ROCK_FLAVOR: master
+            ROCK_BRANCH: master
+            USE_OCL: false
+            rtt_corba_implementation: omniorb
+            rtt_target: gnulinux
+            cxx11: false
+            USE_PYTHON: true
+            PYTHONPATH: /usr/bin/python2.7
+            python_executable: "/usr/bin/python"
+            python_version: 2
