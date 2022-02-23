@@ -21,7 +21,7 @@ jobs:
         with:
           distro: ${{ matrix.distro }}
           buildconf-url: git@github.com:romulogcerqueira/sonar_simulation.git
-          packages: '${{ github.event.repository.name }}'
+          packages: 'simulation/normal_depth_map'
           seed-config: |
             ---
             apt_dpkg_update: 'true'
